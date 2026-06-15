@@ -26,24 +26,38 @@
 	</a>
 {/if}
 
-<div class="mt-5 grid grid-cols-2 gap-3">
+<form method="POST" action="?/generate" use:enhance class="mt-5">
+	<button
+		class="flex w-full items-center gap-4 rounded-2xl bg-sky-500 px-5 py-5 text-left font-bold text-sky-950 transition active:scale-[0.98]"
+	>
+		<svg class="h-8 w-8 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z" />
+		</svg>
+		<span>
+			Generate workout
+			<span class="block text-xs font-medium text-sky-900/80">Auto-built from your progress</span>
+		</span>
+	</button>
+</form>
+
+<div class="mt-3 grid grid-cols-2 gap-3">
 	<form method="POST" action="?/start" use:enhance>
 		<input type="hidden" name="kind" value="lifting" />
 		<button
-			class="flex w-full flex-col items-start gap-2 rounded-2xl bg-sky-500 px-5 py-5 text-left font-bold text-sky-950 transition active:scale-[0.98]"
+			class="flex w-full flex-col items-start gap-2 rounded-2xl bg-zinc-800 px-5 py-4 text-left font-semibold transition active:scale-[0.98]"
 		>
-			<svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+			<svg class="h-6 w-6 text-zinc-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
 				<path d="M6 7v10M18 7v10M3 9v6M21 9v6M6 12h12" />
 			</svg>
-			Start Lifting
+			Empty workout
 		</button>
 	</form>
 	<form method="POST" action="?/start" use:enhance>
 		<input type="hidden" name="kind" value="conditioning" />
 		<button
-			class="flex w-full flex-col items-start gap-2 rounded-2xl bg-zinc-800 px-5 py-5 text-left font-bold transition active:scale-[0.98]"
+			class="flex w-full flex-col items-start gap-2 rounded-2xl bg-zinc-800 px-5 py-4 text-left font-semibold transition active:scale-[0.98]"
 		>
-			<svg class="h-7 w-7 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+			<svg class="h-6 w-6 text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 				<path d="M12 21s-7-4.5-9-9a5 5 0 0 1 9-2 5 5 0 0 1 9 2c-2 4.5-9 9-9 9z" />
 			</svg>
 			Conditioning

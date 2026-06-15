@@ -123,6 +123,7 @@
 						{item.muscle} · target {item.targetRepLow}–{item.targetRepHigh} reps
 						{#if item.targetRir != null}· {item.targetRir} RIR{/if}
 					</div>
+					{#if item.weNotes}<div class="mt-1 text-xs text-sky-400/90">💡 {item.weNotes}</div>{/if}
 					{#if item.exNotes}<div class="mt-1 text-xs text-zinc-600 italic">{item.exNotes}</div>{/if}
 				</div>
 				<form method="POST" action="?/removeExercise" use:enhance>
