@@ -11,6 +11,7 @@
 
 	const tabs = [
 		{ href: '/home', label: 'Today', icon: 'home' },
+		{ href: '/progress', label: 'Progress', icon: 'chart' },
 		{ href: '/history', label: 'History', icon: 'history' },
 		{ href: '/body', label: 'Body', icon: 'body' },
 		{ href: '/inventory', label: 'Gear', icon: 'gear' }
@@ -66,6 +67,8 @@
 					<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						{#if tab.icon === 'home'}
 							<path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" />
+						{:else if tab.icon === 'chart'}
+							<path d="M4 19V5M4 19h16M8 16l3-4 3 2 4-6" />
 						{:else if tab.icon === 'history'}
 							<path d="M3 12a9 9 0 1 0 3-6.7L3 8" /><path d="M3 3v5h5" /><path d="M12 8v4l3 2" />
 						{:else if tab.icon === 'body'}
