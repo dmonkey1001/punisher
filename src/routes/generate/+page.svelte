@@ -2,7 +2,12 @@
 	import { enhance } from '$app/forms';
 
 	let { data } = $props();
-	const { muscleGroups } = $derived(data);
+	const { muscleGroups, cycle } = $derived(data);
+
+	const stageLabel = $derived(
+		cycle.stage >= cycle.maxStage ? 'full volume' : `ramping in · stage ${cycle.stage + 1}/${cycle.maxStage + 1}`
+	);
+	const coveredCount = $derived(cycle.complete ? cycle.total : cycle.coveredMajors.length);
 
 	let fatigue = $state<number | null>(null);
 	let sleep = $state<number | null>(null);
@@ -36,6 +41,25 @@
 
 <h1 class="mt-3 text-2xl font-bold">How are you feeling?</h1>
 <p class="mt-1 text-sm text-zinc-500">This tunes today's volume and effort. Skip anything you like.</p>
+
+<!-- Cycle progress -->
+<div class="mt-4 rounded-2xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+	<div class="flex items-center justify-between text-sm">
+		<span class="font-semibold">Cycle {cycle.number}</span>
+		<span class="text-xs text-zinc-500">{stageLabel}</span>
+	</div>
+	<div class="mt-2 flex items-center gap-2">
+		<div class="h-2 flex-1 overflow-hidden rounded-full bg-zinc-800">
+			<div class="h-full rounded-full bg-sky-500" style="width: {(coveredCount / cycle.total) * 100}%"></div>
+		</div>
+		<span class="text-xs font-semibold text-zinc-400">{coveredCount}/{cycle.total}</span>
+	</div>
+	{#if cycle.complete}
+		<p class="mt-2 text-xs text-emerald-400">Cycle complete — generating starts a fresh cycle.</p>
+	{:else if cycle.remainingMajors.length}
+		<p class="mt-2 text-xs text-zinc-500">Still to hit: {cycle.remainingMajors.join(' · ')}</p>
+	{/if}
+</div>
 
 <form method="POST" use:enhance class="mt-5">
 	<input type="hidden" name="fatigue" value={fatigue ?? ''} />

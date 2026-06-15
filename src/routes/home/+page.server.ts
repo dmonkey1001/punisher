@@ -5,6 +5,7 @@ import { db } from '$lib/server/db';
 import { workouts, bodyweightLogs } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { today } from '$lib/server/date';
+import { getCycleStatus } from '$lib/server/training/plan';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);
@@ -45,7 +46,7 @@ export const load: PageServerLoad = async (event) => {
 		.orderBy(desc(bodyweightLogs.date))
 		.get();
 
-	return { user, active, recent, latestBw };
+	return { user, active, recent, latestBw, cycle: getCycleStatus(user) };
 };
 
 export const actions: Actions = {

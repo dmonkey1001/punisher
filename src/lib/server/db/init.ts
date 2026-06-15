@@ -2,6 +2,7 @@ import path from 'node:path';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { db } from './index';
 import { seedIfEmpty } from './seed';
+import { ensureLibrary } from './ensure-library';
 
 let initialized = false;
 
@@ -15,4 +16,5 @@ export function ensureDb(): void {
 	initialized = true;
 	migrate(db, { migrationsFolder: path.resolve('drizzle') });
 	seedIfEmpty(db);
+	ensureLibrary(db);
 }

@@ -158,6 +158,27 @@ export const exercises = sqliteTable('exercises', {
 // Workouts & logging
 // ---------------------------------------------------------------------------
 
+/**
+ * A training cycle: a set of generated workouts that together cover every
+ * muscle group once. `stage` drives the volume ramp (0 = easy reentry .. up to
+ * full volume), advancing per completed cycle when recovery allows.
+ */
+export const cycles = sqliteTable('cycles', {
+	id: uuid(),
+	userId: text('user_id')
+		.notNull()
+		.references(() => users.id),
+	number: integer('number').notNull().default(1),
+	stage: integer('stage').notNull().default(0),
+	status: text('status', { enum: ['active', 'complete'] })
+		.notNull()
+		.default('active'),
+	startedAt: text('started_at')
+		.notNull()
+		.default(sql`(datetime('now'))`),
+	completedAt: text('completed_at')
+});
+
 export const workouts = sqliteTable('workouts', {
 	id: uuid(),
 	userId: text('user_id')
@@ -165,11 +186,16 @@ export const workouts = sqliteTable('workouts', {
 		.references(() => users.id),
 	/** ISO day (YYYY-MM-DD). */
 	date: text('date').notNull(),
-	/** Optional label, e.g. "Upper A" or "Conditioning". */
+	/** Optional label, e.g. "Chest + Triceps" or "Conditioning". */
 	label: text('label'),
 	kind: text('kind', { enum: ['lifting', 'conditioning'] })
 		.notNull()
 		.default('lifting'),
+	/** Cycle this workout belongs to (null for ad-hoc/empty/conditioning). */
+	cycleId: text('cycle_id').references(() => cycles.id),
+	/** Anchor groups this session covers in its cycle, e.g. "Chest" / "Triceps". */
+	majorAnchor: text('major_anchor'),
+	minorAnchor: text('minor_anchor'),
 	// Pre-session readiness snapshot (1 = poor .. 5 = great). Nullable until logged.
 	fatigue: integer('fatigue'),
 	sleep: integer('sleep'),
@@ -284,6 +310,7 @@ export type Plate = typeof plates.$inferSelect;
 export type Dumbbell = typeof dumbbells.$inferSelect;
 export type MuscleGroup = typeof muscleGroups.$inferSelect;
 export type Exercise = typeof exercises.$inferSelect;
+export type Cycle = typeof cycles.$inferSelect;
 export type Workout = typeof workouts.$inferSelect;
 export type WorkoutExercise = typeof workoutExercises.$inferSelect;
 export type WorkoutSet = typeof sets.$inferSelect;

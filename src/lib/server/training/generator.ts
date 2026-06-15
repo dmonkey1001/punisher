@@ -1,17 +1,16 @@
 /**
- * Workout generator. Given the exercise pool, recent history, achievable loads,
- * and (optionally) today's readiness, it picks a split, fills movement slots
- * with equipment-valid exercises (favoring variety), and attaches a progression
- * target to each via {@link prescribe}.
+ * Cycle-based workout generator.
  *
- * Pure: all DB access happens in the caller, which passes plain data in. The
- * "let the app decide" split simply alternates Upper/Lower from the last
- * lifting session — predictable and well-suited to a variable schedule.
+ * A *cycle* is a set of sessions that together cover every muscle group once.
+ * Each session is one MAJOR anchor + its paired MINOR (fixed pairings below).
+ * The generator picks the most-rested uncovered major, pairs its minor, and
+ * fills exercises (equipment-valid, least-recently-used for variety). Volume is
+ * driven by a `stage` (the ramp): exercises-per-major and sets grow as the
+ * lifter progresses. Cycle lifecycle (coverage + stage advancement) is managed
+ * by the caller; this module is pure.
  */
 
 import { prescribe, type LastTopSet, type Prescription, type Readiness } from './progression';
-
-export type SplitType = 'upper' | 'lower';
 
 export interface GenExercise {
 	id: string;
@@ -25,82 +24,102 @@ export interface GenExercise {
 	fatigueCost: number;
 }
 
-export interface GenInput {
-	/** 'auto' alternates from lastLiftingLabel; or force a split. */
-	split?: 'auto' | SplitType;
-	lastLiftingLabel?: string | null;
-	/** Equipment-valid, non-conditioning exercises. */
+interface Selector {
+	patterns: string[];
+	muscle?: string;
+}
+
+/** Major anchors, in tie-break priority order. */
+export const MAJORS = ['Chest', 'Lats', 'Upper Back', 'Shoulders', 'Quads', 'Hamstrings', 'Glutes'];
+
+/** Fixed major → minor pairings (1:1, so a cycle is exactly 7 sessions). */
+export const PAIRING: Record<string, string> = {
+	Chest: 'Triceps',
+	Lats: 'Biceps',
+	'Upper Back': 'Rear Delts',
+	Shoulders: 'Traps',
+	Quads: 'Calves',
+	Hamstrings: 'Lower Back',
+	Glutes: 'Abs'
+};
+
+/** Exercise selectors per anchor (ordered; multi-entry = distinct movements). */
+const SELECTORS: Record<string, Selector[]> = {
+	// Majors
+	Chest: [{ patterns: ['horizontal-push'], muscle: 'Chest' }],
+	Lats: [{ patterns: ['vertical-pull'], muscle: 'Lats' }],
+	'Upper Back': [{ patterns: ['horizontal-pull'], muscle: 'Upper Back' }],
+	Shoulders: [
+		{ patterns: ['vertical-push'], muscle: 'Front Delts' },
+		{ patterns: ['lateral-raise'], muscle: 'Side Delts' }
+	],
+	Quads: [{ patterns: ['squat', 'lunge'], muscle: 'Quads' }],
+	Hamstrings: [{ patterns: ['hinge'], muscle: 'Hamstrings' }],
+	Glutes: [{ patterns: ['hinge'], muscle: 'Glutes' }],
+	// Minors
+	Triceps: [{ patterns: ['elbow-extension'], muscle: 'Triceps' }],
+	Biceps: [{ patterns: ['curl'], muscle: 'Biceps' }],
+	'Rear Delts': [{ patterns: ['rear-delt'], muscle: 'Rear Delts' }],
+	Traps: [{ patterns: ['lateral-raise'], muscle: 'Traps' }],
+	'Lower Back': [{ patterns: ['hinge'], muscle: 'Lower Back' }],
+	Abs: [{ patterns: ['core'], muscle: 'Abs' }],
+	Calves: [{ patterns: ['calf'], muscle: 'Calves' }]
+};
+
+/** Muscle used to judge "most rested" for recovery ordering of a major anchor. */
+const ANCHOR_MUSCLE: Record<string, string> = { Shoulders: 'Side Delts' };
+
+/** Volume ramp stages. Index = cycle stage; clamped to the last (full) stage. */
+export const STAGES = [
+	{ majorCount: 1, setsMajor: 2, setsMinor: 2, rirOffset: 1 }, // easy reentry
+	{ majorCount: 1, setsMajor: 3, setsMinor: 2, rirOffset: 1 },
+	{ majorCount: 2, setsMajor: 3, setsMinor: 3, rirOffset: 0 } // full
+];
+export const MAX_STAGE = STAGES.length - 1;
+
+export interface CycleGenInput {
+	/** Major anchors already covered in the current cycle. */
+	coveredMajors: string[];
+	/** Volume ramp stage (0..MAX_STAGE). */
+	stage: number;
 	pool: GenExercise[];
-	/** exerciseId -> ISO date last performed (null/absent = never). */
 	lastUsedAt?: Record<string, string | null>;
-	/** exerciseId -> most recent top set. */
+	/** Muscle name -> ISO date last trained, for recovery ordering. */
+	lastTrainedAt?: Record<string, string | null>;
 	lastTopSet?: Record<string, LastTopSet | null>;
-	/** equipment kind -> achievable loads ascending. */
 	loadsByEquipment?: Record<string, { totalLb: number }[]>;
 	readiness?: Readiness;
-	/** muscle name -> soreness 0..3. */
 	sorenessByMuscle?: Record<string, number>;
 }
 
-export interface GeneratedSlot {
-	slot: string;
+export interface CycleSlot {
+	role: 'major' | 'minor';
+	anchor: string;
 	exercise: GenExercise;
 	targetSets: number;
 	prescription: Prescription;
 }
 
-export interface GeneratedWorkout {
-	split: SplitType;
+export interface GeneratedSession {
+	majorAnchor: string;
+	minorAnchor: string;
 	label: string;
-	slots: GeneratedSlot[];
+	stage: number;
+	slots: CycleSlot[];
+	/** True if this session covers the last uncovered major (closes the cycle). */
+	lastInCycle: boolean;
 }
 
-interface SlotDef {
-	name: string;
-	patterns: string[];
-	/** Optional primary-muscle filter (e.g. distinguish side delts from traps). */
-	muscle?: string;
-	sets: number;
-}
-
-const SLOTS: Record<SplitType, SlotDef[]> = {
-	upper: [
-		{ name: 'Horizontal Press', patterns: ['horizontal-push'], muscle: 'Chest', sets: 3 },
-		{ name: 'Horizontal Pull', patterns: ['horizontal-pull'], sets: 3 },
-		{ name: 'Vertical Pull', patterns: ['vertical-pull'], sets: 3 },
-		{ name: 'Vertical Press', patterns: ['vertical-push'], sets: 2 },
-		{ name: 'Side Delts', patterns: ['lateral-raise'], muscle: 'Side Delts', sets: 3 },
-		{ name: 'Triceps', patterns: ['elbow-extension'], sets: 2 },
-		{ name: 'Biceps', patterns: ['curl'], sets: 2 }
-	],
-	lower: [
-		{ name: 'Squat', patterns: ['squat'], sets: 3 },
-		{ name: 'Hinge', patterns: ['hinge'], muscle: 'Hamstrings', sets: 3 },
-		{ name: 'Single-leg', patterns: ['lunge'], sets: 3 },
-		{ name: 'Glutes', patterns: ['hinge'], muscle: 'Glutes', sets: 3 },
-		{ name: 'Calves', patterns: ['calf'], sets: 3 },
-		{ name: 'Core', patterns: ['core'], sets: 3 }
-	]
-};
-
-export function chooseSplit(lastLabel?: string | null): SplitType {
-	if (lastLabel && /lower/i.test(lastLabel)) return 'upper';
-	if (lastLabel && /upper/i.test(lastLabel)) return 'lower';
-	// No usable history → start with Upper.
-	return 'upper';
+function stageParams(stage: number) {
+	return STAGES[Math.max(0, Math.min(stage, MAX_STAGE))];
 }
 
 function lowReadiness(r?: Readiness): boolean {
 	return !!r && r.fatigue != null && r.fatigue <= 2;
 }
 
-/**
- * Pick the best exercise for a slot: equipment-valid candidates matching the
- * slot's patterns (and muscle, if set), excluding already-used exercises,
- * preferring the least-recently-used (variety). Deterministic.
- */
-function pickForSlot(
-	slot: SlotDef,
+function pickForSelector(
+	sel: Selector,
 	pool: GenExercise[],
 	used: Set<string>,
 	lastUsedAt: Record<string, string | null>
@@ -108,12 +127,10 @@ function pickForSlot(
 	const candidates = pool.filter(
 		(e) =>
 			!used.has(e.id) &&
-			slot.patterns.includes(e.pattern) &&
-			(!slot.muscle || e.primaryMuscle === slot.muscle)
+			sel.patterns.includes(e.pattern) &&
+			(!sel.muscle || e.primaryMuscle === sel.muscle)
 	);
 	if (candidates.length === 0) return null;
-
-	// Sort: never-used first, then oldest last-used, then name for stability.
 	candidates.sort((a, b) => {
 		const ua = lastUsedAt[a.id] ?? '';
 		const ub = lastUsedAt[b.id] ?? '';
@@ -123,42 +140,84 @@ function pickForSlot(
 	return candidates[0];
 }
 
-export function generate(input: GenInput): GeneratedWorkout {
+/** Fill an anchor with up to `count` distinct exercises (variety via LRU). */
+function fillAnchor(
+	anchor: string,
+	count: number,
+	pool: GenExercise[],
+	used: Set<string>,
+	lastUsedAt: Record<string, string | null>
+): GenExercise[] {
+	const selectors = SELECTORS[anchor] ?? [];
+	const out: GenExercise[] = [];
+	for (let i = 0; i < count && selectors.length; i++) {
+		const sel = selectors[Math.min(i, selectors.length - 1)];
+		const ex = pickForSelector(sel, pool, used, lastUsedAt);
+		if (ex) {
+			used.add(ex.id);
+			out.push(ex);
+		}
+	}
+	return out;
+}
+
+export function generateCycleSession(input: CycleGenInput): GeneratedSession {
 	const lastUsedAt = input.lastUsedAt ?? {};
+	const lastTrainedAt = input.lastTrainedAt ?? {};
 	const lastTopSet = input.lastTopSet ?? {};
 	const loadsByEquipment = input.loadsByEquipment ?? {};
 	const soreness = input.sorenessByMuscle ?? {};
-
-	const split: SplitType = input.split && input.split !== 'auto' ? input.split : chooseSplit(input.lastLiftingLabel);
+	const params = stageParams(input.stage);
 	const easyDay = lowReadiness(input.readiness);
 
+	const uncovered = MAJORS.filter((m) => !input.coveredMajors.includes(m));
+	const choices = uncovered.length ? uncovered : [...MAJORS];
+
+	// Most-rested major first: oldest last-trained date (never-trained = oldest),
+	// tie-break by MAJORS priority order.
+	choices.sort((a, b) => {
+		const ta = lastTrainedAt[ANCHOR_MUSCLE[a] ?? a] ?? '';
+		const tb = lastTrainedAt[ANCHOR_MUSCLE[b] ?? b] ?? '';
+		if (ta !== tb) return ta < tb ? -1 : 1;
+		return MAJORS.indexOf(a) - MAJORS.indexOf(b);
+	});
+
+	const major = choices[0];
+	const minor = PAIRING[major];
+
 	const used = new Set<string>();
-	const slots: GeneratedSlot[] = [];
+	const majorEx = fillAnchor(major, params.majorCount, input.pool, used, lastUsedAt);
+	const minorEx = fillAnchor(minor, 1, input.pool, used, lastUsedAt);
 
-	for (const def of SLOTS[split]) {
-		const exercise = pickForSlot(def, input.pool, used, lastUsedAt);
-		if (!exercise) continue; // no equipment-valid option (e.g. no calf machine) — skip
-		used.add(exercise.id);
-
+	const build = (ex: GenExercise, role: 'major' | 'minor', baseSets: number): CycleSlot => {
 		const prescription = prescribe({
-			repLow: exercise.repLow,
-			repHigh: exercise.repHigh,
-			targetRir: exercise.defaultRir,
-			last: lastTopSet[exercise.id] ?? null,
-			loads: loadsByEquipment[exercise.equipment] ?? [],
+			repLow: ex.repLow,
+			repHigh: ex.repHigh,
+			targetRir: ex.defaultRir + params.rirOffset,
+			last: lastTopSet[ex.id] ?? null,
+			loads: loadsByEquipment[ex.equipment] ?? [],
 			readiness: {
 				fatigue: input.readiness?.fatigue ?? null,
-				soreness: soreness[exercise.primaryMuscle] ?? null
+				soreness: soreness[ex.primaryMuscle] ?? null
 			}
 		});
+		let targetSets = baseSets;
+		if (easyDay) targetSets = Math.max(1, targetSets - 1);
+		if ((soreness[ex.primaryMuscle] ?? 0) >= 3) targetSets = Math.max(1, targetSets - 1);
+		return { role, anchor: role === 'major' ? major : minor, exercise: ex, targetSets, prescription };
+	};
 
-		// Volume adjustments: trim a set on a low-energy day, and trim again for a
-		// sore primary muscle (de-prioritize what hasn't recovered).
-		let targetSets = easyDay ? Math.max(2, def.sets - 1) : def.sets;
-		const sore = soreness[exercise.primaryMuscle] ?? 0;
-		if (sore >= 3) targetSets = Math.max(1, targetSets - 1);
-		slots.push({ slot: def.name, exercise, targetSets, prescription });
-	}
+	const slots: CycleSlot[] = [
+		...majorEx.map((e) => build(e, 'major', params.setsMajor)),
+		...minorEx.map((e) => build(e, 'minor', params.setsMinor))
+	];
 
-	return { split, label: split === 'upper' ? 'Upper' : 'Lower', slots };
+	return {
+		majorAnchor: major,
+		minorAnchor: minor,
+		label: `${major} + ${minor}`,
+		stage: input.stage,
+		slots,
+		lastInCycle: uncovered.length === 1
+	};
 }

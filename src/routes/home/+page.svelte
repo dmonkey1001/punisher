@@ -2,7 +2,8 @@
 	import { enhance } from '$app/forms';
 
 	let { data } = $props();
-	const { user, active, recent, latestBw } = $derived(data);
+	const { user, active, recent, latestBw, cycle } = $derived(data);
+	const coveredCount = $derived(cycle.complete ? cycle.total : cycle.coveredMajors.length);
 
 	function fmtDate(iso: string): string {
 		const d = new Date(iso + 'T00:00:00');
@@ -38,6 +39,14 @@
 		<span class="block text-xs font-medium text-sky-900/80">Quick check-in, then auto-built from your progress</span>
 	</span>
 </a>
+
+<div class="mt-2 flex items-center gap-2 px-1 text-xs text-zinc-500">
+	<span class="font-semibold text-zinc-400">Cycle {cycle.number}</span>
+	<div class="h-1.5 flex-1 overflow-hidden rounded-full bg-zinc-800">
+		<div class="h-full rounded-full bg-sky-500/70" style="width: {(coveredCount / cycle.total) * 100}%"></div>
+	</div>
+	<span>{coveredCount}/{cycle.total} muscle groups</span>
+</div>
 
 <div class="mt-3 grid grid-cols-2 gap-3">
 	<form method="POST" action="?/start" use:enhance>

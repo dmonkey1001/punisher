@@ -5,7 +5,7 @@ import { db } from '$lib/server/db';
 import { muscleGroups, sets, sorenessLogs, workoutExercises, workouts } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { today } from '$lib/server/date';
-import { generateForUser } from '$lib/server/training/plan';
+import { generateForUser, getCycleStatus } from '$lib/server/training/plan';
 
 function num(v: FormDataEntryValue | null): number | null {
 	if (v == null || v === '') return null;
@@ -20,7 +20,7 @@ export const load: PageServerLoad = async (event) => {
 		.from(muscleGroups)
 		.orderBy(asc(muscleGroups.name))
 		.all();
-	return { user, muscleGroups: groups };
+	return { user, muscleGroups: groups, cycle: getCycleStatus(user) };
 };
 
 export const actions: Actions = {
@@ -51,7 +51,7 @@ export const actions: Actions = {
 				.run();
 		}
 
-		const plan = generateForUser(user, { fatigue, sorenessByMuscle });
+		const { session, cycle } = generateForUser(user, { fatigue, sorenessByMuscle });
 
 		const workoutId = crypto.randomUUID();
 		db.insert(workouts)
@@ -60,14 +60,17 @@ export const actions: Actions = {
 				userId: user.id,
 				date: day,
 				kind: 'lifting',
-				label: plan.label,
+				label: session.label,
+				cycleId: cycle.id,
+				majorAnchor: session.majorAnchor,
+				minorAnchor: session.minorAnchor,
 				fatigue,
 				sleep,
 				status: 'in_progress'
 			})
 			.run();
 
-		plan.slots.forEach((slot, i) => {
+		session.slots.forEach((slot, i) => {
 			const weId = crypto.randomUUID();
 			db.insert(workoutExercises)
 				.values({
