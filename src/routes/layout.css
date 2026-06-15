@@ -1,0 +1,35 @@
+@import 'tailwindcss';
+
+/* Punisher base styling — mobile-first, dark, big tap targets. */
+
+:root {
+	color-scheme: dark;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body {
+	-webkit-tap-highlight-color: transparent;
+	overscroll-behavior-y: none;
+}
+
+/* Respect device safe areas (notch / home indicator). */
+.safe-bottom {
+	padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
+}
+.safe-top {
+	padding-top: env(safe-area-inset-top);
+}
+
+/* Larger, finger-friendly numeric inputs. */
+input[type='number'] {
+	-moz-appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}

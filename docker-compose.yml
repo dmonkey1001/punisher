@@ -1,0 +1,26 @@
+# Punisher — home workout app.
+# Deploy as a Portainer stack (see README "Deploying with Portainer").
+#
+# The host port is 8585 → reach the app at http://<server-ip>:8585
+# Change the left side of "8585:3000" if that port is taken.
+
+services:
+  punisher:
+    container_name: punisher
+    # Build from this repo. For Portainer "Repository" stacks this works as-is.
+    # To use a prebuilt image instead, comment out `build:` and set `image:`.
+    build: .
+    image: punisher:latest
+    restart: unless-stopped
+    ports:
+      - '8585:3000'
+    environment:
+      # SQLite database file (kept on the named volume below).
+      DATABASE_URL: /data/punisher.db
+      # Optional: pin the public origin, e.g. http://192.168.1.50:8585
+      # ORIGIN: ''
+    volumes:
+      - punisher-data:/data
+
+volumes:
+  punisher-data:
