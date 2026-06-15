@@ -1,8 +1,22 @@
 <script lang="ts">
 	import LineChart from '$lib/components/LineChart.svelte';
+	import VolumeBar from '$lib/components/VolumeBar.svelte';
 
 	let { data } = $props();
-	const { strength, bodyweight, measurements } = $derived(data);
+	const { strength, bodyweight, measurements, volume } = $derived(data);
+
+	const STATUS: Record<string, { color: string; label: string }> = {
+		none: { color: '#52525b', label: '—' },
+		low: { color: '#f59e0b', label: 'below MEV' },
+		'in-range': { color: '#10b981', label: 'in range' },
+		high: { color: '#0ea5e9', label: 'high' },
+		over: { color: '#f43f5e', label: 'over MRV' }
+	};
+
+	const trainedCount = $derived(volume.filter((v) => v.sets > 0).length);
+	const needAttention = $derived(
+		volume.filter((v) => v.status === 'low' || v.status === 'over').length
+	);
 
 	let selectedId = $state<string | null>(null);
 	const selected = $derived(
@@ -18,7 +32,35 @@
 
 <h1 class="text-2xl font-bold">Progress</h1>
 
-<div class="lg:grid lg:grid-cols-3 lg:items-start lg:gap-6">
+<!-- Weekly volume -->
+<div class="mt-4 flex items-center justify-between">
+	<h2 class="text-sm font-semibold tracking-wide text-zinc-500 uppercase">This week's volume</h2>
+	<span class="text-xs text-zinc-600">{trainedCount} trained · {needAttention} need attention</span>
+</div>
+<p class="mb-3 text-xs text-zinc-600">
+	Working sets in the last 7 days per muscle. Ticks mark <span class="text-zinc-400">MEV · MAV · MRV</span>
+	(minimum effective → max adaptive → max recoverable). Secondary work counts as ½ a set.
+</p>
+
+<div class="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+	{#each volume as v (v.name)}
+		<div>
+			<div class="flex items-baseline justify-between text-sm">
+				<span class="font-medium">{v.name}</span>
+				<span class="text-xs">
+					<span class="font-semibold text-zinc-300">{v.sets}</span>
+					<span class="text-zinc-600"> sets · </span>
+					<span style="color: {STATUS[v.status].color}">{STATUS[v.status].label}</span>
+				</span>
+			</div>
+			<div class="mt-1.5">
+				<VolumeBar sets={v.sets} mev={v.mev} mav={v.mav} mrv={v.mrv} color={STATUS[v.status].color} />
+			</div>
+		</div>
+	{/each}
+</div>
+
+<div class="mt-6 lg:grid lg:grid-cols-3 lg:items-start lg:gap-6">
 <section class="lg:col-span-2">
 <!-- Strength -->
 <h2 class="mt-5 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Strength</h2>

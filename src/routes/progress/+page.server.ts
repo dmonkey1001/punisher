@@ -1,8 +1,36 @@
 import { asc, eq, sql } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { bodyweightLogs, measurements } from '$lib/server/db/schema';
+import { bodyweightLogs, measurements, muscleGroups } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
+
+export type VolumeStatus = 'none' | 'low' | 'in-range' | 'high' | 'over';
+export interface MuscleVolume {
+	name: string;
+	sets: number;
+	mev: number;
+	mav: number;
+	mrv: number;
+	status: VolumeStatus;
+}
+
+function volumeStatus(sets: number, mev: number, mav: number, mrv: number): VolumeStatus {
+	if (sets <= 0) return 'none';
+	if (sets < mev) return 'low';
+	if (sets < mav) return 'in-range';
+	if (sets <= mrv) return 'high';
+	return 'over';
+}
+
+/** ISO date `days` days before today (local). */
+function daysAgo(days: number): string {
+	const d = new Date();
+	d.setDate(d.getDate() - days);
+	const y = d.getFullYear();
+	const m = String(d.getMonth() + 1).padStart(2, '0');
+	const day = String(d.getDate()).padStart(2, '0');
+	return `${y}-${m}-${day}`;
+}
 
 /** Epley estimated 1-rep max. */
 function epley(weight: number, reps: number): number {
@@ -106,5 +134,42 @@ export const load: PageServerLoad = async (event) => {
 		(measurementsBySite[m.site] ??= []).push({ label: shortDate(m.date), value: m.valueIn, date: m.date });
 	}
 
-	return { user, strength, bodyweight: bw, measurements: measurementsBySite };
+	// Weekly per-muscle volume (last 7 days): primary set = 1, secondary = 0.5.
+	const since = daysAgo(6);
+	const volRows = db.all<{ pid: string; sec: string | null }>(sql`
+		SELECT e.primary_muscle_id AS pid, e.secondary_muscle_ids AS sec
+		FROM sets s
+		JOIN workout_exercises we ON we.id = s.workout_exercise_id
+		JOIN workouts w ON w.id = we.workout_id
+		JOIN exercises e ON e.id = we.exercise_id
+		WHERE w.user_id = ${user.id} AND s.completed_at IS NOT NULL
+			AND s.is_warmup = 0 AND w.date >= ${since}
+	`);
+	const setsByMuscle = new Map<string, number>();
+	const add = (id: string, n: number) => setsByMuscle.set(id, (setsByMuscle.get(id) ?? 0) + n);
+	for (const r of volRows) {
+		add(r.pid, 1);
+		try {
+			for (const sid of JSON.parse(r.sec || '[]') as string[]) add(sid, 0.5);
+		} catch {
+			/* ignore malformed */
+		}
+	}
+
+	const groups = db.select().from(muscleGroups).all();
+	const volume: MuscleVolume[] = groups
+		.map((g) => {
+			const sets = Math.round((setsByMuscle.get(g.id) ?? 0) * 10) / 10;
+			return {
+				name: g.name,
+				sets,
+				mev: g.mevSets,
+				mav: g.mavSets,
+				mrv: g.mrvSets,
+				status: volumeStatus(sets, g.mevSets, g.mavSets, g.mrvSets)
+			};
+		})
+		.sort((a, b) => b.sets - a.sets || a.name.localeCompare(b.name));
+
+	return { user, strength, bodyweight: bw, measurements: measurementsBySite, volume };
 };
