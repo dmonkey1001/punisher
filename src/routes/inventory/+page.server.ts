@@ -2,7 +2,17 @@ import { fail } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { bars, dumbbells, plates, users } from '$lib/server/db/schema';
+import {
+	bars,
+	bodyweightLogs,
+	cycles,
+	dumbbells,
+	measurements,
+	plates,
+	sorenessLogs,
+	users,
+	workouts
+} from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { barLoads, cableLoads, nextLoadAbove, type PlateInventory } from '$lib/server/training/plate-math';
 
@@ -115,5 +125,21 @@ export const actions: Actions = {
 		if (ratio == null || ratio <= 0) return fail(400, { message: 'Invalid ratio' });
 		db.update(users).set({ cablePulleyRatio: ratio }).where(eq(users.id, user.id)).run();
 		return { ok: true };
+	},
+
+	resetTraining: async (event) => {
+		const user = requireUser(event);
+		// Deleting workouts cascades to workout_exercises + sets (FK pragma on).
+		db.delete(workouts).where(eq(workouts.userId, user.id)).run();
+		db.delete(cycles).where(eq(cycles.userId, user.id)).run();
+		db.delete(sorenessLogs).where(eq(sorenessLogs.userId, user.id)).run();
+		return { reset: 'training' };
+	},
+
+	resetBody: async (event) => {
+		const user = requireUser(event);
+		db.delete(bodyweightLogs).where(eq(bodyweightLogs.userId, user.id)).run();
+		db.delete(measurements).where(eq(measurements.userId, user.id)).run();
+		return { reset: 'body' };
 	}
 };

@@ -121,6 +121,32 @@
 	</div>
 </form>
 
+<!-- Danger zone -->
+<h2 class="mt-8 mb-2 text-sm font-semibold tracking-wide text-rose-500/80 uppercase">Danger zone ({user.name})</h2>
+<div class="flex flex-col gap-2 rounded-2xl border border-rose-900/50 bg-rose-950/20 p-3">
+	<form
+		method="POST"
+		action="?/resetTraining"
+		use:enhance
+		onsubmit={(e) => { if (!confirm(`Delete ALL of ${user.name}'s workout history (workouts, sets, cycles, soreness)? This cannot be undone.`)) e.preventDefault(); }}
+	>
+		<button class="w-full rounded-xl border border-rose-800/60 py-2.5 text-sm font-semibold text-rose-300">
+			Reset workout history
+		</button>
+	</form>
+	<form
+		method="POST"
+		action="?/resetBody"
+		use:enhance
+		onsubmit={(e) => { if (!confirm(`Delete ALL of ${user.name}'s bodyweight + measurement logs? This cannot be undone.`)) e.preventDefault(); }}
+	>
+		<button class="w-full rounded-xl border border-rose-800/60 py-2.5 text-sm font-semibold text-rose-300">
+			Reset body logs
+		</button>
+	</form>
+	<p class="px-1 text-xs text-zinc-600">Profiles, equipment, and the exercise library are kept.</p>
+</div>
+
 <div class="mt-8 text-center">
 	<a href="/" class="text-sm text-zinc-500">Switch profile →</a>
 </div>

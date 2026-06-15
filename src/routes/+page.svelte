@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Logo from '$lib/components/Logo.svelte';
+
 	let { data } = $props();
 	const users = $derived(data.users);
 
@@ -8,8 +10,9 @@
 </script>
 
 <div class="flex min-h-dvh flex-col items-center justify-center gap-10 py-12">
-	<div class="text-center">
-		<h1 class="text-4xl font-black tracking-tight">
+	<div class="flex flex-col items-center text-center">
+		<Logo size={52} class="text-sky-500" />
+		<h1 class="mt-3 text-4xl font-black tracking-tight">
 			PUNISHER<span class="text-sky-500">.</span>
 		</h1>
 		<p class="mt-2 text-sm text-zinc-500">Who's training?</p>

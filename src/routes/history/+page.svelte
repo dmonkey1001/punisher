@@ -34,7 +34,7 @@
 {:else}
 	{#each groups as [month, list] (month)}
 		<h2 class="mt-6 mb-2 text-xs font-semibold tracking-wide text-zinc-500 uppercase">{month}</h2>
-		<ul class="flex flex-col gap-2">
+		<ul class="grid grid-cols-1 gap-2 lg:grid-cols-2">
 			{#each list as w (w.id)}
 				<li>
 					<a

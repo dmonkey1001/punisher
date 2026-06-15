@@ -18,6 +18,8 @@
 
 <h1 class="text-2xl font-bold">Progress</h1>
 
+<div class="lg:grid lg:grid-cols-3 lg:items-start lg:gap-6">
+<section class="lg:col-span-2">
 <!-- Strength -->
 <h2 class="mt-5 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Strength</h2>
 {#if strength.length === 0}
@@ -76,8 +78,10 @@
 	{/if}
 {/if}
 
+</section>
+<section>
 <!-- Bodyweight -->
-<h2 class="mt-7 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Bodyweight</h2>
+<h2 class="mt-5 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase lg:mt-5">Bodyweight</h2>
 {#if bodyweight.length < 2}
 	<p class="rounded-2xl border border-dashed border-zinc-800 px-5 py-6 text-center text-sm text-zinc-500">
 		<a href="/body" class="text-sky-400">Log your bodyweight</a> a few times to see the trend.
@@ -88,10 +92,13 @@
 	</div>
 {/if}
 
+</section>
+</div>
+
 <!-- Measurements -->
 {#if measurementSites.length}
 	<h2 class="mt-7 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Measurements</h2>
-	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 		{#each measurementSites as site (site)}
 			<div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
 				<div class="mb-1 text-sm font-semibold">{siteLabel(site)}</div>
