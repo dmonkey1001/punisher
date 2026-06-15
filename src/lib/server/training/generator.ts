@@ -152,8 +152,11 @@ export function generate(input: GenInput): GeneratedWorkout {
 			}
 		});
 
-		// Trim a set on a low-readiness day (min 2).
-		const targetSets = easyDay ? Math.max(2, def.sets - 1) : def.sets;
+		// Volume adjustments: trim a set on a low-energy day, and trim again for a
+		// sore primary muscle (de-prioritize what hasn't recovered).
+		let targetSets = easyDay ? Math.max(2, def.sets - 1) : def.sets;
+		const sore = soreness[exercise.primaryMuscle] ?? 0;
+		if (sore >= 3) targetSets = Math.max(1, targetSets - 1);
 		slots.push({ slot: def.name, exercise, targetSets, prescription });
 	}
 

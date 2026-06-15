@@ -2,10 +2,9 @@ import { redirect } from '@sveltejs/kit';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
-import { workouts, workoutExercises, sets, bodyweightLogs } from '$lib/server/db/schema';
+import { workouts, bodyweightLogs } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { today } from '$lib/server/date';
-import { generateForUser } from '$lib/server/training/plan';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);
@@ -67,54 +66,5 @@ export const actions: Actions = {
 			})
 			.run();
 		throw redirect(303, `/workout/${id}`);
-	},
-
-	generate: async (event) => {
-		const user = requireUser(event);
-		const plan = generateForUser(user);
-
-		const workoutId = crypto.randomUUID();
-		db.insert(workouts)
-			.values({
-				id: workoutId,
-				userId: user.id,
-				date: today(),
-				kind: 'lifting',
-				label: plan.label,
-				status: 'in_progress'
-			})
-			.run();
-
-		plan.slots.forEach((slot, i) => {
-			const weId = crypto.randomUUID();
-			db.insert(workoutExercises)
-				.values({
-					id: weId,
-					workoutId,
-					exerciseId: slot.exercise.id,
-					orderIndex: i,
-					targetSets: slot.targetSets,
-					targetRepLow: slot.prescription.repLow,
-					targetRepHigh: slot.prescription.repHigh,
-					targetWeightLb: slot.prescription.weightLb,
-					targetRir: slot.prescription.rir,
-					notes: slot.prescription.note
-				})
-				.run();
-
-			for (let n = 1; n <= slot.targetSets; n++) {
-				db.insert(sets)
-					.values({
-						id: crypto.randomUUID(),
-						workoutExerciseId: weId,
-						setNumber: n,
-						targetReps: slot.prescription.targetReps,
-						targetWeightLb: slot.prescription.weightLb
-					})
-					.run();
-			}
-		});
-
-		throw redirect(303, `/workout/${workoutId}`);
 	}
 };

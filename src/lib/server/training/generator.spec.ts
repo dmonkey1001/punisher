@@ -90,6 +90,20 @@ describe('generate', () => {
 		expect(w.slots.every((s) => s.prescription.weightLb === null)).toBe(true);
 	});
 
+	it('reduces volume for a sore primary muscle only', () => {
+		const w = generate({ pool: pool(), sorenessByMuscle: { Chest: 3 } });
+		const press = w.slots.find((s) => s.slot === 'Horizontal Press')!; // Chest
+		const pull = w.slots.find((s) => s.slot === 'Horizontal Pull')!; // Back
+		expect(press.targetSets).toBe(2); // 3 → 2 because Chest is sore
+		expect(pull.targetSets).toBe(3); // unaffected
+	});
+
+	it('does not reduce volume for mild soreness', () => {
+		const w = generate({ pool: pool(), sorenessByMuscle: { Chest: 2 } });
+		const press = w.slots.find((s) => s.slot === 'Horizontal Press')!;
+		expect(press.targetSets).toBe(3);
+	});
+
 	it('trims a set per slot on a low-readiness day', () => {
 		const normal = generate({ pool: pool() });
 		const tired = generate({ pool: pool(), readiness: { fatigue: 2 } });

@@ -18,7 +18,14 @@ const LOAD_KINDS: EquipmentKind[] = [
  * Gather everything the pure generator needs from the DB and produce the next
  * prescribed workout for a user.
  */
-export function generateForUser(user: User, split: 'auto' | SplitType = 'auto'): GeneratedWorkout {
+export interface GenerateOptions {
+	split?: 'auto' | SplitType;
+	fatigue?: number | null;
+	sorenessByMuscle?: Record<string, number>;
+}
+
+export function generateForUser(user: User, opts: GenerateOptions = {}): GeneratedWorkout {
+	const split = opts.split ?? 'auto';
 	// Equipment-valid, non-conditioning exercises with their primary muscle name.
 	const pool: GenExercise[] = db
 		.select({
@@ -89,6 +96,8 @@ export function generateForUser(user: User, split: 'auto' | SplitType = 'auto'):
 		pool,
 		lastUsedAt,
 		lastTopSet,
-		loadsByEquipment
+		loadsByEquipment,
+		readiness: { fatigue: opts.fatigue ?? null },
+		sorenessByMuscle: opts.sorenessByMuscle
 	});
 }
