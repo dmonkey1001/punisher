@@ -4,6 +4,9 @@
 # The host port is 8585 → reach the app at http://<server-ip>:8585
 # Change the left side of "8585:3000" if that port is taken.
 
+# Pin the Compose project name so Portainer doesn't prefix/rename resources.
+name: punisher
+
 services:
   punisher:
     container_name: punisher
