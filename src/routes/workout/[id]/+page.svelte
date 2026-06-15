@@ -1,8 +1,25 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import type { SubmitFunction } from '@sveltejs/kit';
 
 	let { data } = $props();
 	const { workout, items, library, loadChoices } = $derived(data);
+
+	// Auto-saving forms must NOT reset on submit (enhance resets by default),
+	// otherwise the value the user just typed gets wiped before the reload.
+	const keepValues: SubmitFunction = () => async ({ update }) => {
+		await update({ reset: false });
+	};
+
+	// Per-set saves: keep values AND skip the full data reload, so saving one
+	// field doesn't re-render (and clobber) another field you're mid-typing.
+	// Deletes still reload so the removed row disappears.
+	const saveSetEnhance: SubmitFunction = ({ action }) => {
+		const isDelete = action.search.includes('deleteSet');
+		return async ({ update }) => {
+			await update({ reset: false, invalidateAll: isDelete });
+		};
+	};
 
 	let showPicker = $state(false);
 	let query = $state('');
@@ -71,7 +88,7 @@
 </div>
 
 <!-- Header / meta -->
-<form method="POST" action="?/updateMeta" use:enhance class="mt-3">
+<form method="POST" action="?/updateMeta" use:enhance={keepValues} class="mt-3">
 	<input
 		name="label"
 		value={workout.label ?? ''}
@@ -83,7 +100,7 @@
 </form>
 
 <!-- Readiness -->
-<form method="POST" action="?/updateReadiness" use:enhance class="mt-4 grid grid-cols-2 gap-3">
+<form method="POST" action="?/updateReadiness" use:enhance={keepValues} class="mt-4 grid grid-cols-2 gap-3">
 	<label class="rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2">
 		<span class="text-xs text-zinc-500">Fatigue</span>
 		<select
@@ -145,7 +162,7 @@
 					<form
 						method="POST"
 						action="?/saveSet"
-						use:enhance
+						use:enhance={saveSetEnhance}
 						class="grid grid-cols-[2rem_1fr_1fr_3.5rem_2rem] items-center gap-2"
 					>
 						<input type="hidden" name="setId" value={s.id} />
