@@ -132,13 +132,19 @@
 <!-- Exercises -->
 <div class="mt-6 flex flex-col gap-4">
 	{#each items as item (item.weId)}
+		{@const doneSets = item.sets.filter((s) => s.completedAt && !s.isWarmup).length}
+		{@const goalSets = item.targetSets ?? item.sets.filter((s) => !s.isWarmup).length}
+		{@const meta =
+			item.targetRepLow && item.targetRepHigh
+				? `${item.muscle} · target ${item.targetSets ? item.targetSets + ' × ' : ''}${item.targetRepLow}–${item.targetRepHigh} reps${item.targetRir != null ? ' @ ' + item.targetRir + ' RIR' : ''}`
+				: item.muscle}
 		<section class="rounded-2xl border border-zinc-800 bg-zinc-900/60">
 			<header class="flex items-start justify-between gap-2 border-b border-zinc-800 px-4 py-3">
 				<div>
 					<div class="font-semibold">{item.name}</div>
-					<div class="text-xs text-zinc-500">
-						{item.muscle} · target {item.targetRepLow}–{item.targetRepHigh} reps
-						{#if item.targetRir != null}· {item.targetRir} RIR{/if}
+					<div class="text-xs text-zinc-500">{meta}</div>
+					<div class="mt-0.5 text-xs font-medium {doneSets >= goalSets ? 'text-emerald-400' : 'text-zinc-400'}">
+						{doneSets} of {goalSets} sets done{#if doneSets >= goalSets && goalSets > 0} ✓{/if}
 					</div>
 					{#if item.weNotes}<div class="mt-1 text-xs text-sky-400/90">💡 {item.weNotes}</div>{/if}
 					{#if item.exNotes}<div class="mt-1 text-xs text-zinc-600 italic">{item.exNotes}</div>{/if}
