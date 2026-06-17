@@ -76,15 +76,29 @@
 
 <div class="flex items-center justify-between gap-2">
 	<a href="/home" class="text-sm text-zinc-500">← Home</a>
-	{#if isDone}
-		<span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">
-			Completed ✓
-		</span>
-	{:else}
-		<span class="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-400">
-			In progress
-		</span>
-	{/if}
+	<div class="flex items-center gap-3">
+		{#if isDone}
+			<span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-bold text-emerald-400">
+				Completed ✓
+			</span>
+		{:else}
+			<span class="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-bold text-amber-400">
+				In progress
+			</span>
+		{/if}
+		<form
+			method="POST"
+			action="?/deleteWorkout"
+			use:enhance
+			onsubmit={(e) => {
+				if (!confirm(totalSets > 0 ? 'Delete this workout and its logged sets? This cannot be undone.' : 'Discard this workout?')) e.preventDefault();
+			}}
+		>
+			<button class="text-sm font-medium text-zinc-500 hover:text-rose-400">
+				{isDone ? 'Delete' : 'Cancel'}
+			</button>
+		</form>
+	</div>
 </div>
 
 <!-- Header / meta -->

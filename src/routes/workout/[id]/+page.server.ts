@@ -283,8 +283,8 @@ export const actions: Actions = {
 	deleteWorkout: async (event) => {
 		const user = requireUser(event);
 		const workout = getWorkout(event.params.id, user.id);
-		// Cascade removes workout_exercises + sets.
+		// Cascade removes workout_exercises + sets (FK pragma on).
 		db.delete(workouts).where(eq(workouts.id, workout.id)).run();
-		throw redirect(303, '/history');
+		throw redirect(303, '/home');
 	}
 };
