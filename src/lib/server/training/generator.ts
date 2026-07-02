@@ -69,6 +69,30 @@ const SELECTORS: Record<string, Selector[]> = {
 /** Muscle used to judge "most rested" for recovery ordering of a major anchor. */
 const ANCHOR_MUSCLE: Record<string, string> = { Shoulders: 'Side Delts' };
 
+/**
+ * Pinned primary lift per anchor. The first exercise of every anchor is always
+ * this movement (when it exists in the pool), so the big lifts recur every
+ * cycle — giving steady double-progression and a remembered working weight.
+ * Additional exercises (2nd major slot at full volume, Shoulders' lateral
+ * slot) still rotate least-recently-used for variety.
+ */
+export const PRIMARY_LIFTS: Record<string, string> = {
+	Chest: 'Barbell Bench Press',
+	Lats: 'Cable Lat Pulldown',
+	'Upper Back': 'Barbell Row',
+	Shoulders: 'Barbell Overhead Press',
+	Quads: 'Barbell Back Squat',
+	Hamstrings: 'Barbell Romanian Deadlift',
+	Glutes: 'Barbell Hip Thrust',
+	Triceps: 'Cable Triceps Pushdown',
+	Biceps: 'EZ Bar Curl',
+	'Rear Delts': 'Cable Face Pull',
+	Traps: 'Barbell Shrug',
+	'Lower Back': 'Floor Back Extension',
+	Abs: 'Cable Crunch',
+	Calves: 'Standing Barbell Calf Raise'
+};
+
 /** Volume ramp stages. Index = cycle stage; clamped to the last (full) stage. */
 export const STAGES = [
 	{ majorCount: 1, setsMajor: 2, setsMinor: 2, rirOffset: 1 }, // easy reentry
@@ -140,7 +164,11 @@ function pickForSelector(
 	return candidates[0];
 }
 
-/** Fill an anchor with up to `count` distinct exercises (variety via LRU). */
+/**
+ * Fill an anchor with up to `count` distinct exercises. The first slot is the
+ * anchor's pinned primary lift (consistent across cycles → steady progression
+ * and remembered weights); remaining slots rotate least-recently-used.
+ */
 function fillAnchor(
 	anchor: string,
 	count: number,
@@ -152,7 +180,21 @@ function fillAnchor(
 	const out: GenExercise[] = [];
 	for (let i = 0; i < count && selectors.length; i++) {
 		const sel = selectors[Math.min(i, selectors.length - 1)];
-		const ex = pickForSelector(sel, pool, used, lastUsedAt);
+		let ex: GenExercise | null = null;
+		if (i === 0) {
+			// Pinned primary — must still match the slot's selector so the
+			// Shoulders press slot never pins a lateral raise, etc.
+			const pinned = pool.find(
+				(e) =>
+					e.name === PRIMARY_LIFTS[anchor] &&
+					!used.has(e.id) &&
+					sel.patterns.includes(e.pattern) &&
+					(!sel.muscle || e.primaryMuscle === sel.muscle)
+			);
+			ex = pinned ?? null;
+		}
+		// Fallback (pinned lift missing/renamed) and all later slots: LRU rotation.
+		ex ??= pickForSelector(sel, pool, used, lastUsedAt);
 		if (ex) {
 			used.add(ex.id);
 			out.push(ex);

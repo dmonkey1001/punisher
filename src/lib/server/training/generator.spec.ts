@@ -107,6 +107,45 @@ describe('generateCycleSession', () => {
 		expect(notLast.lastInCycle).toBe(false);
 	});
 
+	it('pins the primary lift even when recently used', () => {
+		const p = pool();
+		// Real library names so the pin matches.
+		const bench = ex({ name: 'Barbell Bench Press', pattern: 'horizontal-push', primaryMuscle: 'Chest' });
+		p.push(bench);
+		const w = generateCycleSession({
+			coveredMajors: [],
+			stage: 0,
+			pool: p,
+			// Bench used yesterday; fakes never used → LRU alone would avoid it.
+			lastUsedAt: { [bench.id]: '2026-06-14' }
+		});
+		const major = w.slots.find((s) => s.role === 'major')!;
+		expect(major.exercise.name).toBe('Barbell Bench Press');
+	});
+
+	it('rotates the second major slot while the first stays pinned', () => {
+		const p = pool();
+		const bench = ex({ name: 'Barbell Bench Press', pattern: 'horizontal-push', primaryMuscle: 'Chest' });
+		p.push(bench);
+		const incline = p.find((e) => e.name === 'Incline')!;
+		const w = generateCycleSession({
+			coveredMajors: [],
+			stage: 2, // full volume → 2 major exercises
+			pool: p,
+			lastUsedAt: { [bench.id]: '2026-06-14', [incline.id]: '2026-06-01' }
+		});
+		const majors = w.slots.filter((s) => s.role === 'major').map((m) => m.exercise.name);
+		expect(majors[0]).toBe('Barbell Bench Press'); // pinned
+		expect(majors).toHaveLength(2);
+		expect(majors[1]).not.toBe('Barbell Bench Press'); // accessory rotates (LRU)
+	});
+
+	it('falls back to LRU when the pinned lift is not in the pool', () => {
+		// pool() has no real library names, so every anchor falls back.
+		const w = generateCycleSession({ coveredMajors: [], stage: 0, pool: pool() });
+		expect(w.slots.length).toBeGreaterThan(0);
+	});
+
 	it('reduces volume for a sore major muscle', () => {
 		const s = generateCycleSession({
 			coveredMajors: [],
