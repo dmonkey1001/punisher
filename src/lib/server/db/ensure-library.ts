@@ -60,4 +60,25 @@ export function ensureLibrary(db: DB): void {
 			db.update(schema.exercises).set(fields).where(eq(schema.exercises.id, existing.id)).run();
 		}
 	}
+
+	// 3. Prune obsolete muscle groups left behind by library revisions (e.g. the
+	// old merged "Back" after the Lats/Upper Back split) — but only when nothing
+	// references them: no exercise (primary or secondary) and no soreness log.
+	const canonicalNames = new Set(MUSCLE_GROUPS.map((g) => g.name));
+	const allExercises = db.select().from(schema.exercises).all();
+	for (const g of db.select().from(schema.muscleGroups).all()) {
+		if (canonicalNames.has(g.name)) continue;
+		const referenced = allExercises.some(
+			(e) => e.primaryMuscleId === g.id || e.secondaryMuscleIds.includes(g.id)
+		);
+		if (referenced) continue;
+		const soreness = db
+			.select()
+			.from(schema.sorenessLogs)
+			.where(eq(schema.sorenessLogs.muscleGroupId, g.id))
+			.limit(1)
+			.all();
+		if (soreness.length > 0) continue;
+		db.delete(schema.muscleGroups).where(eq(schema.muscleGroups.id, g.id)).run();
+	}
 }

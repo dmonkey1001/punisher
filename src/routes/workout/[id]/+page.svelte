@@ -14,12 +14,25 @@
 	// Per-set saves: keep values AND skip the full data reload, so saving one
 	// field doesn't re-render (and clobber) another field you're mid-typing.
 	// Deletes still reload so the removed row disappears.
-	const saveSetEnhance: SubmitFunction = ({ action }) => {
+	//
+	// Because the reload is skipped, completion state is mirrored locally in
+	// `doneOverlay` so the "X of N sets done" counters still update live.
+	let doneOverlay = $state<Record<string, boolean>>({});
+	const saveSetEnhance: SubmitFunction = ({ action, formData }) => {
 		const isDelete = action.search.includes('deleteSet');
+		const setId = String(formData.get('setId') ?? '');
+		// Mirrors the server rule: a set is complete once reps are recorded.
+		const reps = String(formData.get('reps') ?? '');
+		const isWarmup = formData.get('isWarmup') != null;
 		return async ({ update }) => {
 			await update({ reset: false, invalidateAll: isDelete });
+			if (!isDelete && setId) doneOverlay[setId] = reps !== '' && !isWarmup;
 		};
 	};
+
+	function isSetDone(s: { id: string; completedAt: string | null; isWarmup: boolean }): boolean {
+		return doneOverlay[s.id] ?? (!!s.completedAt && !s.isWarmup);
+	}
 
 	let showPicker = $state(false);
 	let query = $state('');
@@ -60,7 +73,7 @@
 	}
 
 	const totalSets = $derived(
-		items.reduce((n, i) => n + i.sets.filter((s) => s.completedAt && !s.isWarmup).length, 0)
+		items.reduce((n, i) => n + i.sets.filter((s) => isSetDone(s)).length, 0)
 	);
 	const totalVolume = $derived(
 		items.reduce(
@@ -146,7 +159,7 @@
 <!-- Exercises -->
 <div class="mt-6 flex flex-col gap-4">
 	{#each items as item (item.weId)}
-		{@const doneSets = item.sets.filter((s) => s.completedAt && !s.isWarmup).length}
+		{@const doneSets = item.sets.filter((s) => isSetDone(s)).length}
 		{@const goalSets = item.targetSets ?? item.sets.filter((s) => !s.isWarmup).length}
 		{@const meta =
 			item.targetRepLow && item.targetRepHigh

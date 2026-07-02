@@ -11,15 +11,10 @@ import {
 	type EquipmentKind
 } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
+import { num } from '$lib/server/forms';
 import { loadingHelper, type LoadChoice } from '$lib/server/training/loading';
 
 const now = () => new Date().toISOString();
-
-function num(v: FormDataEntryValue | null): number | null {
-	if (v == null || v === '') return null;
-	const n = Number(v);
-	return Number.isFinite(n) ? n : null;
-}
 
 function getWorkout(id: string, userId: string) {
 	const w = db
@@ -132,12 +127,13 @@ export const actions: Actions = {
 		const ex = db.select().from(exercises).where(eq(exercises.id, exerciseId)).get();
 		if (!ex) return fail(400, { message: 'Unknown exercise' });
 
-		const count = db
-			.select({ c: sql<number>`count(*)` })
+		// max+1 (not count) so removing a middle exercise can't produce duplicates.
+		const maxOrder = db
+			.select({ m: sql<number | null>`max(order_index)` })
 			.from(workoutExercises)
 			.where(eq(workoutExercises.workoutId, workout.id))
 			.get();
-		const orderIndex = count?.c ?? 0;
+		const orderIndex = (maxOrder?.m ?? -1) + 1;
 		const last = lastPerformance(user.id, exerciseId);
 
 		const weId = crypto.randomUUID();

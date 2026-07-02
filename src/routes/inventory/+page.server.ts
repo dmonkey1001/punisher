@@ -14,13 +14,8 @@ import {
 	workouts
 } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
+import { num } from '$lib/server/forms';
 import { barLoads, cableLoads, nextLoadAbove, type PlateInventory } from '$lib/server/training/plate-math';
-
-function num(v: FormDataEntryValue | null): number | null {
-	if (v == null || v === '') return null;
-	const n = Number(v);
-	return Number.isFinite(n) ? n : null;
-}
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);

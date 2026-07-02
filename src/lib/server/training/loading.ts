@@ -6,7 +6,6 @@ import {
 	cableLoads,
 	describeBarLoad,
 	formatPlates,
-	nearestLoad,
 	type PlateInventory
 } from './plate-math';
 
@@ -69,14 +68,5 @@ export function loadingHelper(user: User) {
 		return [];
 	}
 
-	/** Snap a target to the nearest achievable load and describe it. */
-	function hintFor(equipment: EquipmentKind, targetLb: number | null | undefined): string | null {
-		if (targetLb == null) return null;
-		const choices = choicesFor(equipment);
-		if (choices.length === 0) return null;
-		const best = nearestLoad(choices, targetLb);
-		return best ? best.hint : null;
-	}
-
-	return { choicesFor, hintFor };
+	return { choicesFor };
 }

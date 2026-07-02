@@ -12,9 +12,10 @@ export default defineConfig({
 				runes: ({ filename }) =>
 					filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 			},
-			// Trusted LAN-only app on the home network. Disabling the cross-origin
-			// form-POST check lets any device submit forms without per-IP ORIGIN config.
-			csrf: { checkOrigin: false },
+			// Trusted LAN-only app on the home network. Trusting all origins lets any
+			// device submit forms without per-IP ORIGIN config (do not expose to the
+			// public internet).
+			csrf: { trustedOrigins: ['*'] },
 			adapter: adapter(),
 			typescript: {
 				config: (config) => ({

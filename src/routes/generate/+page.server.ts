@@ -5,13 +5,8 @@ import { db } from '$lib/server/db';
 import { muscleGroups, sets, sorenessLogs, workoutExercises, workouts } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { today } from '$lib/server/date';
+import { num } from '$lib/server/forms';
 import { generateForUser, getCycleStatus } from '$lib/server/training/plan';
-
-function num(v: FormDataEntryValue | null): number | null {
-	if (v == null || v === '') return null;
-	const n = Number(v);
-	return Number.isFinite(n) ? n : null;
-}
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);

@@ -4,7 +4,10 @@
 	let { data } = $props();
 	const { bodyweight, measurements, latestBySite, sites } = $derived(data);
 
-	const today = new Date().toISOString().slice(0, 10);
+	// Local calendar date (toISOString would give the UTC day, which rolls over
+	// early in the evening for western timezones).
+	const now = new Date();
+	const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
 	const latest = $derived(bodyweight.at(-1) ?? null);
 	const previous = $derived(bodyweight.at(-2) ?? null);

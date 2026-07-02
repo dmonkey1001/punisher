@@ -5,12 +5,7 @@ import { db } from '$lib/server/db';
 import { bodyweightLogs, measurements, MEASUREMENT_SITES } from '$lib/server/db/schema';
 import { requireUser } from '$lib/server/session';
 import { today } from '$lib/server/date';
-
-function num(v: FormDataEntryValue | null): number | null {
-	if (v == null || v === '') return null;
-	const n = Number(v);
-	return Number.isFinite(n) ? n : null;
-}
+import { num } from '$lib/server/forms';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireUser(event);
