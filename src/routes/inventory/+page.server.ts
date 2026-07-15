@@ -1,4 +1,4 @@
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { asc, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
@@ -13,7 +13,7 @@ import {
 	users,
 	workouts
 } from '$lib/server/db/schema';
-import { requireUser } from '$lib/server/session';
+import { clearUser, requireUser } from '$lib/server/session';
 import { num } from '$lib/server/forms';
 import { barLoads, cableLoads, nextLoadAbove, type PlateInventory } from '$lib/server/training/plate-math';
 
@@ -120,6 +120,31 @@ export const actions: Actions = {
 		if (ratio == null || ratio <= 0) return fail(400, { message: 'Invalid ratio' });
 		db.update(users).set({ cablePulleyRatio: ratio }).where(eq(users.id, user.id)).run();
 		return { ok: true };
+	},
+
+	updateProfile: async (event) => {
+		const user = requireUser(event);
+		const form = await event.request.formData();
+		const name = String(form.get('name') ?? '').trim();
+		if (!name || name.length > 30) return fail(400, { message: 'Name required (max 30 chars)' });
+		const rawColor = String(form.get('color') ?? user.color);
+		const color = /^#[0-9a-f]{6}$/i.test(rawColor) ? rawColor : user.color;
+		db.update(users).set({ name, color }).where(eq(users.id, user.id)).run();
+		return { ok: true };
+	},
+
+	deleteProfile: async (event) => {
+		const user = requireUser(event);
+		// Full wipe of this profile's data, then the profile itself.
+		// (Workout deletion cascades to workout_exercises + sets.)
+		db.delete(workouts).where(eq(workouts.userId, user.id)).run();
+		db.delete(cycles).where(eq(cycles.userId, user.id)).run();
+		db.delete(sorenessLogs).where(eq(sorenessLogs.userId, user.id)).run();
+		db.delete(bodyweightLogs).where(eq(bodyweightLogs.userId, user.id)).run();
+		db.delete(measurements).where(eq(measurements.userId, user.id)).run();
+		db.delete(users).where(eq(users.id, user.id)).run();
+		clearUser(event.cookies);
+		throw redirect(303, '/');
 	},
 
 	resetTraining: async (event) => {

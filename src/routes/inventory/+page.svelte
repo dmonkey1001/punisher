@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { PROFILE_COLORS } from '$lib/profile-colors';
 
 	let { data } = $props();
 	const { user, bars, plates, dumbbells, feedback } = $derived(data);
@@ -121,6 +122,38 @@
 	</div>
 </form>
 
+<!-- Profile -->
+<h2 class="mt-6 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Profile</h2>
+<form method="POST" action="?/updateProfile" use:enhance class="flex flex-col gap-3 rounded-2xl border border-zinc-800 bg-zinc-900 p-4">
+	<label class="flex items-center gap-3">
+		<span class="w-14 text-xs text-zinc-500">Name</span>
+		<input
+			name="name"
+			value={user.name}
+			required
+			maxlength="30"
+			onchange={submitForm}
+			class="flex-1 rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 focus:border-sky-500 focus:outline-none"
+		/>
+	</label>
+	<div class="flex items-center gap-3">
+		<span class="w-14 text-xs text-zinc-500">Color</span>
+		<div class="flex flex-wrap gap-2">
+			{#each PROFILE_COLORS as c (c)}
+				<button
+					name="color"
+					value={c}
+					aria-label="Set color {c}"
+					class="h-8 w-8 rounded-full transition {user.color === c
+						? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-900'
+						: 'opacity-70'}"
+					style="background-color: {c}"
+				></button>
+			{/each}
+		</div>
+	</div>
+</form>
+
 <!-- Danger zone -->
 <h2 class="mt-8 mb-2 text-sm font-semibold tracking-wide text-rose-500/80 uppercase">Danger zone ({user.name})</h2>
 <div class="flex flex-col gap-2 rounded-2xl border border-rose-900/50 bg-rose-950/20 p-3">
@@ -145,6 +178,16 @@
 		</button>
 	</form>
 	<p class="px-1 text-xs text-zinc-600">Profiles, equipment, and the exercise library are kept.</p>
+	<form
+		method="POST"
+		action="?/deleteProfile"
+		use:enhance
+		onsubmit={(e) => { if (!confirm(`Permanently delete the profile "${user.name}" and ALL of its data (workouts, body logs, everything)? This cannot be undone.`)) e.preventDefault(); }}
+	>
+		<button class="w-full rounded-xl border border-rose-700 bg-rose-950/40 py-2.5 text-sm font-bold text-rose-300">
+			Delete this profile
+		</button>
+	</form>
 </div>
 
 <div class="mt-8 text-center">

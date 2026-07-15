@@ -106,11 +106,16 @@ docker cp punisher:/data/punisher.db ./punisher-backup-$(date +%F).db
 
 ## First run
 
-On first launch the app seeds:
+On first launch the app seeds a starter home-gym inventory (bars, plates,
+dumbbells) and the default hypertrophy exercise library + conditioning
+movements. **No profiles are pre-created** — the opening screen asks you to
+create your first profile (name + color); add more anytime from the profile
+picker, and rename/recolor/delete under **Gear**.
 
-- Profiles **Derek** and **Tai**
-- The home-gym equipment (bars, the shared plate inventory, dumbbells)
-- A default hypertrophy exercise library + conditioning movements
+Then adjust bar weights, plates, and the cable pulley ratio under **Gear** to
+match your actual equipment — those values drive every load the app suggests.
 
-Adjust bar weights, plates, and the cable pulley ratio under **Gear** to match
-reality — those values drive every load the app suggests.
+Each deployment is fully independent: one container + one database volume per
+household. To host your own instance, clone/pull this repo and follow
+"Deploying with Docker / Portainer" above — nothing in the code is specific to
+any user.

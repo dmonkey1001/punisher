@@ -5,21 +5,16 @@ import * as schema from './schema';
 type DB = BetterSQLite3Database<typeof schema>;
 
 /**
- * Seed the per-gym essentials (profiles + hardware inventory) on first boot.
- * Idempotent: only runs when the users table is empty. The exercise library is
- * handled separately by ensureLibrary() so it stays current on every boot.
+ * Seed a starter hardware inventory on first boot. Idempotent: only runs when
+ * the bars table is empty. Everything here is editable in the Gear screen —
+ * it's a sensible home-gym starting point, not a requirement.
  *
- * Bar weights are best-effort defaults — editable in the Inventory screen, and
- * the plate-math depends on them, so confirm/adjust there.
+ * Profiles are NOT seeded: each deployment creates its own on first run via
+ * the profile picker. The exercise library is handled by ensureLibrary().
  */
 export function seedIfEmpty(db: DB): void {
-	const existing = db.select({ c: sql<number>`count(*)` }).from(schema.users).get();
+	const existing = db.select({ c: sql<number>`count(*)` }).from(schema.bars).get();
 	if (existing && existing.c > 0) return;
-
-	db.insert(schema.users).values([
-		{ name: 'Derek', color: '#0ea5e9' },
-		{ name: 'Tai', color: '#ec4899' }
-	]).run();
 
 	db.insert(schema.bars).values([
 		{ name: 'Olympic Barbell', kind: 'barbell', weightLb: 45 },
