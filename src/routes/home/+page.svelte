@@ -73,6 +73,18 @@
 	</form>
 </div>
 
+<a
+	href="https://www.youtube.com/watch?v=gH5UMjMoTVI&list=RDgH5UMjMoTVI&t=144s"
+	target="_blank"
+	rel="noopener noreferrer"
+	class="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/15 to-rose-500/15 px-5 py-3 font-bold text-amber-300 transition active:scale-[0.98]"
+>
+	<svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+		<path d="M13.5 0.7c0.3 2.5-0.4 4.4-1.6 6.1-1 1.4-2.5 2.6-3.6 4.2C7 12.8 6.4 14.6 6.6 16.9c0.2 2.3 1.4 4.2 3.2 5.4 0.8 0.5 1.7 0.9 2.7 1.1-0.9-1-1.4-2.2-1.3-3.6 0.1-1.3 0.8-2.3 1.6-3.2 0.8-0.9 1.7-1.7 2.3-2.9 0.5 1 0.6 2.1 1.5 2.9 1 1.6 1.6 3.5 0.6 5.6-0.3 0.5-0.6 0.9-1 1.2 2.6-0.6 4.5-2.3 5.3-4.8 0.9-2.8 0-5.6-1.3-7.6-0.4-0.7-1-1.3-1.4-2-0.2 1-0.7 1.9-1.6 2.4 0.5-2-0.1-4.1-1-5.5C15.2 4.1 14.1 2.5 13.5 0.7z" />
+	</svg>
+	MOTIVATE
+</a>
+
 <div class="mt-3 grid grid-cols-2 gap-3">
 	<a href="/body" class="rounded-2xl border border-zinc-800 bg-zinc-900 px-5 py-4">
 		<div class="text-xs text-zinc-500">Bodyweight</div>
