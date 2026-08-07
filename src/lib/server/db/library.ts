@@ -57,12 +57,13 @@ export const EXERCISES: ExerciseDef[] = [
 
 	// Shoulders — Front Delts (vertical press)
 	{ name: 'Barbell Overhead Press', pattern: 'vertical-push', equipment: 'barbell', primary: 'Front Delts', secondary: ['Side Delts', 'Triceps'], repLow: 5, repHigh: 8, fatigue: 4 },
+	{ name: 'Dumbbell Front Raise', pattern: 'lateral-raise', equipment: 'dumbbell', primary: 'Front Delts', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Raise to shoulder height, palms down; alternate arms or both together.' },
 	// Side Delts
 	{ name: 'Cable Lateral Raise', pattern: 'lateral-raise', equipment: 'cable-low', primary: 'Side Delts', repLow: 12, repHigh: 20, fatigue: 1 },
 	{ name: 'Dumbbell Lateral Raise', pattern: 'lateral-raise', equipment: 'dumbbell', primary: 'Side Delts', repLow: 12, repHigh: 20, fatigue: 1 },
 	// Rear Delts
 	{ name: 'Cable Face Pull', pattern: 'rear-delt', equipment: 'cable-high', primary: 'Rear Delts', secondary: ['Traps'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'Great for shoulder health.' },
-	{ name: 'Dumbbell Rear Delt Fly', pattern: 'rear-delt', equipment: 'dumbbell', usesBench: true, primary: 'Rear Delts', repLow: 12, repHigh: 20, fatigue: 1 },
+	{ name: 'Dumbbell Rear Delt Fly', pattern: 'rear-delt', equipment: 'dumbbell', primary: 'Rear Delts', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Bent-over reverse fly; standing hinged or chest-supported on the incline bench.' },
 
 	// Upper Back (rows)
 	{ name: 'Barbell Row', pattern: 'horizontal-pull', equipment: 'barbell', primary: 'Upper Back', secondary: ['Lats', 'Biceps', 'Rear Delts'], repLow: 8, repHigh: 12, fatigue: 4 },
