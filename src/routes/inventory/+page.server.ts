@@ -1,5 +1,5 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { asc, eq } from 'drizzle-orm';
+import { and, asc, eq } from 'drizzle-orm';
 import type { Actions, PageServerLoad } from './$types';
 import { db } from '$lib/server/db';
 import {
@@ -7,7 +7,10 @@ import {
 	bodyweightLogs,
 	cycles,
 	dumbbells,
+	exerciseBlacklist,
+	exercises,
 	measurements,
+	muscleGroups,
 	plates,
 	sorenessLogs,
 	users,
@@ -42,7 +45,30 @@ export const load: PageServerLoad = async (event) => {
 		cableMax: cLoads.length ? cLoads[cLoads.length - 1].totalLb : 0
 	};
 
-	return { user, bars: barRows, plates: plateRows, dumbbells: dbRows, feedback };
+	// Rotation blacklist: non-conditioning library with this user's blocks.
+	const exerciseRows = db
+		.select({ id: exercises.id, name: exercises.name, muscle: muscleGroups.name })
+		.from(exercises)
+		.innerJoin(muscleGroups, eq(exercises.primaryMuscleId, muscleGroups.id))
+		.where(eq(exercises.isConditioning, false))
+		.orderBy(asc(exercises.name))
+		.all();
+	const blockedIds = db
+		.select({ exerciseId: exerciseBlacklist.exerciseId })
+		.from(exerciseBlacklist)
+		.where(eq(exerciseBlacklist.userId, user.id))
+		.all()
+		.map((r) => r.exerciseId);
+
+	return {
+		user,
+		bars: barRows,
+		plates: plateRows,
+		dumbbells: dbRows,
+		feedback,
+		exercises: exerciseRows,
+		blockedIds
+	};
 };
 
 export const actions: Actions = {
@@ -122,6 +148,28 @@ export const actions: Actions = {
 		return { ok: true };
 	},
 
+	toggleBlock: async (event) => {
+		const user = requireUser(event);
+		const form = await event.request.formData();
+		const exerciseId = String(form.get('exerciseId') ?? '');
+		if (!exerciseId) return fail(400, { message: 'Missing exercise' });
+		const existing = db
+			.select()
+			.from(exerciseBlacklist)
+			.where(
+				and(eq(exerciseBlacklist.userId, user.id), eq(exerciseBlacklist.exerciseId, exerciseId))
+			)
+			.get();
+		if (existing) {
+			db.delete(exerciseBlacklist).where(eq(exerciseBlacklist.id, existing.id)).run();
+		} else {
+			db.insert(exerciseBlacklist)
+				.values({ id: crypto.randomUUID(), userId: user.id, exerciseId })
+				.run();
+		}
+		return { ok: true };
+	},
+
 	updateProfile: async (event) => {
 		const user = requireUser(event);
 		const form = await event.request.formData();
@@ -142,6 +190,7 @@ export const actions: Actions = {
 		db.delete(sorenessLogs).where(eq(sorenessLogs.userId, user.id)).run();
 		db.delete(bodyweightLogs).where(eq(bodyweightLogs.userId, user.id)).run();
 		db.delete(measurements).where(eq(measurements.userId, user.id)).run();
+		db.delete(exerciseBlacklist).where(eq(exerciseBlacklist.userId, user.id)).run();
 		db.delete(users).where(eq(users.id, user.id)).run();
 		clearUser(event.cookies);
 		throw redirect(303, '/');

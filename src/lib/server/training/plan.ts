@@ -1,6 +1,15 @@
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../db';
-import { cycles, exercises, muscleGroups, workouts, type Cycle, type EquipmentKind, type User } from '../db/schema';
+import {
+	cycles,
+	exerciseBlacklist,
+	exercises,
+	muscleGroups,
+	workouts,
+	type Cycle,
+	type EquipmentKind,
+	type User
+} from '../db/schema';
 import { loadingHelper } from './loading';
 import {
 	generateCycleSession,
@@ -139,7 +148,20 @@ export function generateForUser(user: User, opts: GenerateOptions = {}): Generat
 		.innerJoin(muscleGroups, eq(exercises.primaryMuscleId, muscleGroups.id))
 		.where(eq(exercises.isConditioning, false))
 		.all();
+	// History mapping uses the FULL pool so blacklisted exercises still count
+	// toward recovery/variety state; only selection excludes them.
 	const muscleByExercise = new Map(pool.map((e) => [e.id, e.primaryMuscle]));
+
+	const blocked = new Set(
+		db
+			.select({ exerciseId: exerciseBlacklist.exerciseId })
+			.from(exerciseBlacklist)
+			.where(eq(exerciseBlacklist.userId, user.id))
+			.all()
+			.map((r) => r.exerciseId)
+	);
+	// If a pinned primary is blocked, fillAnchor falls back to LRU rotation.
+	const availablePool = pool.filter((e) => !blocked.has(e.id));
 
 	// All completed working sets, newest first → variety, progression, recovery.
 	const rows = db.all<{
@@ -183,7 +205,7 @@ export function generateForUser(user: User, opts: GenerateOptions = {}): Generat
 	const session = generateCycleSession({
 		coveredMajors,
 		stage: cycle.stage,
-		pool,
+		pool: availablePool,
 		lastUsedAt,
 		lastTrainedAt,
 		lastTopSet,

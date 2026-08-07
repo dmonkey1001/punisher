@@ -3,7 +3,17 @@
 	import { PROFILE_COLORS } from '$lib/profile-colors';
 
 	let { data } = $props();
-	const { user, bars, plates, dumbbells, feedback } = $derived(data);
+	const { user, bars, plates, dumbbells, feedback, exercises, blockedIds } = $derived(data);
+
+	let exQuery = $state('');
+	const blocked = $derived(new Set(blockedIds));
+	const filteredExercises = $derived(
+		exercises.filter((e) => {
+			const q = exQuery.trim().toLowerCase();
+			if (!q) return true;
+			return e.name.toLowerCase().includes(q) || e.muscle.toLowerCase().includes(q);
+		})
+	);
 
 	function submitForm(e: Event) {
 		(e.currentTarget as HTMLElement).closest('form')?.requestSubmit();
@@ -121,6 +131,45 @@
 		<span class="text-sm text-zinc-500">× plates</span>
 	</div>
 </form>
+
+<!-- Exercise rotation blacklist -->
+<h2 class="mt-6 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">
+	Exercise rotation ({user.name})
+</h2>
+<div class="rounded-2xl border border-zinc-800 bg-zinc-900 p-3">
+	<p class="px-1 pb-2 text-xs text-zinc-600">
+		Blocked exercises are never auto-programmed for you. You can still add them to a workout manually.
+		{#if blocked.size > 0}<span class="text-rose-400/80">{blocked.size} blocked.</span>{/if}
+	</p>
+	<input
+		bind:value={exQuery}
+		placeholder="Search exercises…"
+		class="mb-2 w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none"
+	/>
+	<div class="max-h-72 overflow-y-auto">
+		{#each filteredExercises as e (e.id)}
+			<form
+				method="POST"
+				action="?/toggleBlock"
+				use:enhance
+				class="flex items-center justify-between gap-2 border-b border-zinc-800/60 px-1 py-2 last:border-0"
+			>
+				<input type="hidden" name="exerciseId" value={e.id} />
+				<span class="min-w-0">
+					<span class="block truncate text-sm font-medium {blocked.has(e.id) ? 'text-zinc-500 line-through' : ''}">{e.name}</span>
+					<span class="text-[11px] text-zinc-600">{e.muscle}</span>
+				</span>
+				<button
+					class="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-semibold transition {blocked.has(e.id)
+						? 'border-rose-700/60 bg-rose-950/40 text-rose-300'
+						: 'border-zinc-700 text-zinc-400'}"
+				>
+					{blocked.has(e.id) ? 'Blocked' : 'Block'}
+				</button>
+			</form>
+		{/each}
+	</div>
+</div>
 
 <!-- Profile -->
 <h2 class="mt-6 mb-2 text-sm font-semibold tracking-wide text-zinc-500 uppercase">Profile</h2>

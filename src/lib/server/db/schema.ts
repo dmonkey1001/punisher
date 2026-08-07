@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 /**
  * Punisher — Phase 1 schema.
@@ -155,6 +155,25 @@ export const exercises = sqliteTable('exercises', {
 	notes: text('notes'),
 	createdAt: createdAt()
 });
+
+/**
+ * Exercises a user has opted out of — the generator never auto-programs these
+ * (manual add in a workout still works). Per profile.
+ */
+export const exerciseBlacklist = sqliteTable(
+	'exercise_blacklist',
+	{
+		id: uuid(),
+		userId: text('user_id')
+			.notNull()
+			.references(() => users.id, { onDelete: 'cascade' }),
+		exerciseId: text('exercise_id')
+			.notNull()
+			.references(() => exercises.id, { onDelete: 'cascade' }),
+		createdAt: createdAt()
+	},
+	(t) => [uniqueIndex('ux_blacklist_user_exercise').on(t.userId, t.exerciseId)]
+);
 
 // ---------------------------------------------------------------------------
 // Workouts & logging
@@ -316,6 +335,7 @@ export type Cycle = typeof cycles.$inferSelect;
 export type Workout = typeof workouts.$inferSelect;
 export type WorkoutExercise = typeof workoutExercises.$inferSelect;
 export type WorkoutSet = typeof sets.$inferSelect;
+export type ExerciseBlacklistEntry = typeof exerciseBlacklist.$inferSelect;
 export type BodyweightLog = typeof bodyweightLogs.$inferSelect;
 export type Measurement = typeof measurements.$inferSelect;
 export type SorenessLog = typeof sorenessLogs.$inferSelect;
