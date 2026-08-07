@@ -112,6 +112,8 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Goblet Squat', pattern: 'squat', equipment: 'dumbbell', primary: 'Quads', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Dumbbell held at your chest.' },
 	{ name: 'Sissy Squat', pattern: 'leg-extension', equipment: 'bodyweight', primary: 'Quads', repLow: 8, repHigh: 15, fatigue: 2, notes: 'Quad isolation — hold a rack upright for balance, lean back and bend at the knees only.' },
 	{ name: 'Cable Leg Extension', pattern: 'leg-extension', equipment: 'cable-low', primary: 'Quads', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Ankle strap on the low pulley; seated on the bench facing away, extend the knee. Reps per leg.' },
+	{ name: 'Machine Leg Press', pattern: 'leg-press', equipment: 'machine', primary: 'Quads', secondary: ['Glutes', 'Hamstrings'], repLow: 10, repHigh: 15, fatigue: 3, notes: 'Feet shoulder-width on the platform; lower under control, don’t lock out hard.' },
+	{ name: 'Machine Leg Extension', pattern: 'leg-extension', equipment: 'machine', primary: 'Quads', repLow: 12, repHigh: 20, fatigue: 1 },
 
 	// Hamstrings
 	{ name: 'Barbell Romanian Deadlift', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Glutes', 'Lower Back'], repLow: 8, repHigh: 12, fatigue: 4 },
@@ -119,6 +121,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Dumbbell Romanian Deadlift', pattern: 'hinge', equipment: 'dumbbell', primary: 'Hamstrings', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Load depends on your dumbbell inventory.' },
 	{ name: 'Nordic Ham Curl', pattern: 'leg-curl', equipment: 'bodyweight', primary: 'Hamstrings', repLow: 3, repHigh: 8, fatigue: 3, notes: 'Kneel with ankles anchored under a loaded bar in the rack; lower as slowly as you can, push back up. Very hard — expect few reps at first.' },
 	{ name: 'Cable Leg Curl', pattern: 'leg-curl', equipment: 'cable-low', primary: 'Hamstrings', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Ankle strap on the low pulley; standing, curl the heel toward your glutes. Reps per leg.' },
+	{ name: 'Machine Leg Curl', pattern: 'leg-curl', equipment: 'machine', primary: 'Hamstrings', repLow: 12, repHigh: 20, fatigue: 1 },
 
 	// Glutes
 	{ name: 'Barbell Hip Thrust', pattern: 'hinge', equipment: 'barbell', usesBench: true, primary: 'Glutes', secondary: ['Hamstrings'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Upper back on the bench.' },

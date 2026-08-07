@@ -103,7 +103,8 @@ export const EQUIPMENT_KINDS = [
 	'cable-low',
 	'dumbbell',
 	'bodyweight',
-	'bench'
+	'bench',
+	'machine'
 ] as const;
 export type EquipmentKind = (typeof EQUIPMENT_KINDS)[number];
 
@@ -117,6 +118,7 @@ export const MOVEMENT_PATTERNS = [
 	'lunge',
 	'leg-curl',
 	'leg-extension',
+	'leg-press',
 	'elbow-flexion',
 	'elbow-extension',
 	'lateral-raise',
