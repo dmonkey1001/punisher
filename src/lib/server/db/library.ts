@@ -111,12 +111,14 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Barbell Reverse Lunge', pattern: 'lunge', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Step back, knee tracks over toes; reps per leg.' },
 	{ name: 'Goblet Squat', pattern: 'squat', equipment: 'dumbbell', primary: 'Quads', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Dumbbell held at your chest.' },
 	{ name: 'Sissy Squat', pattern: 'leg-extension', equipment: 'bodyweight', primary: 'Quads', repLow: 8, repHigh: 15, fatigue: 2, notes: 'Quad isolation — hold a rack upright for balance, lean back and bend at the knees only.' },
+	{ name: 'Cable Leg Extension', pattern: 'leg-extension', equipment: 'cable-low', primary: 'Quads', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Ankle strap on the low pulley; seated on the bench facing away, extend the knee. Reps per leg.' },
 
 	// Hamstrings
 	{ name: 'Barbell Romanian Deadlift', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Glutes', 'Lower Back'], repLow: 8, repHigh: 12, fatigue: 4 },
 	{ name: 'Barbell Good Morning', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Lower Back', 'Glutes'], repLow: 8, repHigh: 12, fatigue: 3 },
 	{ name: 'Dumbbell Romanian Deadlift', pattern: 'hinge', equipment: 'dumbbell', primary: 'Hamstrings', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Load depends on your dumbbell inventory.' },
 	{ name: 'Nordic Ham Curl', pattern: 'leg-curl', equipment: 'bodyweight', primary: 'Hamstrings', repLow: 3, repHigh: 8, fatigue: 3, notes: 'Kneel with ankles anchored under a loaded bar in the rack; lower as slowly as you can, push back up. Very hard — expect few reps at first.' },
+	{ name: 'Cable Leg Curl', pattern: 'leg-curl', equipment: 'cable-low', primary: 'Hamstrings', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Ankle strap on the low pulley; standing, curl the heel toward your glutes. Reps per leg.' },
 
 	// Glutes
 	{ name: 'Barbell Hip Thrust', pattern: 'hinge', equipment: 'barbell', usesBench: true, primary: 'Glutes', secondary: ['Hamstrings'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Upper back on the bench.' },
