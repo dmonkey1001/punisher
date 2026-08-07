@@ -55,13 +55,16 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Cable Low-to-High Fly', pattern: 'horizontal-push', equipment: 'cable-low', primary: 'Chest', secondary: ['Front Delts'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'From the low pulley, sweep up and across — upper-chest emphasis.' },
 	{ name: 'Dip', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 6, repHigh: 12, fatigue: 3, notes: 'Rack dip handles.' },
 	{ name: 'Push-Up', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps'], repLow: 10, repHigh: 20, fatigue: 2 },
+	{ name: 'Dumbbell Bench Press', pattern: 'horizontal-push', equipment: 'dumbbell', usesBench: true, primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Load depends on your dumbbell inventory (Gear).' },
 
 	// Shoulders — Front Delts (vertical press)
 	{ name: 'Barbell Overhead Press', pattern: 'vertical-push', equipment: 'barbell', primary: 'Front Delts', secondary: ['Side Delts', 'Triceps'], repLow: 5, repHigh: 8, fatigue: 4 },
 	{ name: 'Dumbbell Front Raise', pattern: 'lateral-raise', equipment: 'dumbbell', primary: 'Front Delts', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Raise to shoulder height, palms down; alternate arms or both together.' },
+	{ name: 'Dumbbell Shoulder Press', pattern: 'vertical-push', equipment: 'dumbbell', usesBench: true, primary: 'Front Delts', secondary: ['Side Delts', 'Triceps'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Seated or standing; load depends on your dumbbell inventory.' },
 	// Side Delts
 	{ name: 'Cable Lateral Raise', pattern: 'lateral-raise', equipment: 'cable-low', primary: 'Side Delts', repLow: 12, repHigh: 20, fatigue: 1 },
 	{ name: 'Dumbbell Lateral Raise', pattern: 'lateral-raise', equipment: 'dumbbell', primary: 'Side Delts', repLow: 12, repHigh: 20, fatigue: 1 },
+	{ name: 'EZ Bar Upright Row', pattern: 'lateral-raise', equipment: 'ezbar', primary: 'Side Delts', secondary: ['Traps'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Wider grip, pull to chest height — stop lower if shoulders complain.' },
 	// Rear Delts
 	{ name: 'Cable Face Pull', pattern: 'rear-delt', equipment: 'cable-high', primary: 'Rear Delts', secondary: ['Traps'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'Great for shoulder health.' },
 	{ name: 'Dumbbell Rear Delt Fly', pattern: 'rear-delt', equipment: 'dumbbell', primary: 'Rear Delts', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Bent-over reverse fly; standing hinged or chest-supported on the incline bench.' },
@@ -70,6 +73,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Barbell Row', pattern: 'horizontal-pull', equipment: 'barbell', primary: 'Upper Back', secondary: ['Lats', 'Biceps', 'Rear Delts'], repLow: 8, repHigh: 12, fatigue: 4 },
 	{ name: 'Cable Seated Row', pattern: 'horizontal-pull', equipment: 'cable-low', primary: 'Upper Back', secondary: ['Lats', 'Biceps'], repLow: 10, repHigh: 15, fatigue: 2 },
 	{ name: 'Inverted Row', pattern: 'horizontal-pull', equipment: 'bodyweight', primary: 'Upper Back', secondary: ['Lats', 'Biceps'], repLow: 8, repHigh: 15, fatigue: 2, notes: 'Bar racked at waist height in the J-hooks; body straight, pull chest to bar.' },
+	{ name: 'One-Arm Dumbbell Row', pattern: 'horizontal-pull', equipment: 'dumbbell', usesBench: true, primary: 'Upper Back', secondary: ['Lats', 'Biceps'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Knee and hand braced on the bench; reps per arm.' },
 
 	// Lats (vertical pulls)
 	{ name: 'Cable Lat Pulldown', pattern: 'vertical-pull', equipment: 'cable-high', primary: 'Lats', secondary: ['Biceps', 'Upper Back'], repLow: 10, repHigh: 15, fatigue: 2 },
@@ -89,6 +93,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Cable Biceps Curl', pattern: 'curl', equipment: 'cable-low', primary: 'Biceps', repLow: 10, repHigh: 15, fatigue: 1 },
 	{ name: 'Dumbbell Curl', pattern: 'curl', equipment: 'dumbbell', primary: 'Biceps', repLow: 12, repHigh: 15, fatigue: 1 },
 	{ name: 'Dumbbell Hammer Curl', pattern: 'curl', equipment: 'dumbbell', primary: 'Biceps', secondary: ['Forearms'], repLow: 12, repHigh: 15, fatigue: 1, notes: 'Neutral grip — hits brachialis and forearms.' },
+	{ name: 'EZ Bar Spider Curl', pattern: 'curl', equipment: 'ezbar', usesBench: true, primary: 'Biceps', repLow: 10, repHigh: 15, fatigue: 1, notes: 'Chest-down on the incline bench, arms hanging — the preacher-curl substitute.' },
 
 	// Forearms
 	{ name: 'EZ Bar Reverse Curl', pattern: 'curl', equipment: 'ezbar', primary: 'Forearms', secondary: ['Biceps'], repLow: 10, repHigh: 15, fatigue: 1, notes: 'Overhand grip.' },
@@ -104,10 +109,14 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Barbell Front Squat', pattern: 'squat', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes', 'Abs'], repLow: 6, repHigh: 10, fatigue: 4, notes: 'Clean grip or cross-arm; use rack safety arms.' },
 	{ name: 'Bulgarian Split Squat', pattern: 'lunge', equipment: 'bodyweight', usesBench: true, primary: 'Quads', secondary: ['Glutes'], repLow: 8, repHigh: 15, fatigue: 3, notes: 'Rear foot on bench; hold the 15s for load.' },
 	{ name: 'Barbell Reverse Lunge', pattern: 'lunge', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Step back, knee tracks over toes; reps per leg.' },
+	{ name: 'Goblet Squat', pattern: 'squat', equipment: 'dumbbell', primary: 'Quads', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Dumbbell held at your chest.' },
+	{ name: 'Sissy Squat', pattern: 'leg-extension', equipment: 'bodyweight', primary: 'Quads', repLow: 8, repHigh: 15, fatigue: 2, notes: 'Quad isolation — hold a rack upright for balance, lean back and bend at the knees only.' },
 
 	// Hamstrings
 	{ name: 'Barbell Romanian Deadlift', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Glutes', 'Lower Back'], repLow: 8, repHigh: 12, fatigue: 4 },
 	{ name: 'Barbell Good Morning', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Lower Back', 'Glutes'], repLow: 8, repHigh: 12, fatigue: 3 },
+	{ name: 'Dumbbell Romanian Deadlift', pattern: 'hinge', equipment: 'dumbbell', primary: 'Hamstrings', secondary: ['Glutes'], repLow: 10, repHigh: 15, fatigue: 2, notes: 'Load depends on your dumbbell inventory.' },
+	{ name: 'Nordic Ham Curl', pattern: 'leg-curl', equipment: 'bodyweight', primary: 'Hamstrings', repLow: 3, repHigh: 8, fatigue: 3, notes: 'Kneel with ankles anchored under a loaded bar in the rack; lower as slowly as you can, push back up. Very hard — expect few reps at first.' },
 
 	// Glutes
 	{ name: 'Barbell Hip Thrust', pattern: 'hinge', equipment: 'barbell', usesBench: true, primary: 'Glutes', secondary: ['Hamstrings'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Upper back on the bench.' },
@@ -117,6 +126,7 @@ export const EXERCISES: ExerciseDef[] = [
 	// Calves
 	{ name: 'Standing Barbell Calf Raise', pattern: 'calf', equipment: 'barbell', primary: 'Calves', repLow: 10, repHigh: 15, fatigue: 1, notes: 'Bar on back; balls of feet on a plate.' },
 	{ name: 'Single-Leg Calf Raise', pattern: 'calf', equipment: 'bodyweight', primary: 'Calves', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Hold a dumbbell for load.' },
+	{ name: 'Barbell Seated Calf Raise', pattern: 'calf', equipment: 'barbell', usesBench: true, primary: 'Calves', repLow: 12, repHigh: 20, fatigue: 1, notes: 'Seated on the bench, padded bar across your knees, toes on a plate — hits the soleus.' },
 
 	// Abs
 	{ name: 'Cable Crunch', pattern: 'core', equipment: 'cable-high', primary: 'Abs', repLow: 12, repHigh: 20, fatigue: 1 },

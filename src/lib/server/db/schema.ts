@@ -115,6 +115,8 @@ export const MOVEMENT_PATTERNS = [
 	'squat',
 	'hinge',
 	'lunge',
+	'leg-curl',
+	'leg-extension',
 	'elbow-flexion',
 	'elbow-extension',
 	'lateral-raise',
