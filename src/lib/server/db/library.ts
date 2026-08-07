@@ -52,6 +52,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Barbell Bench Press', pattern: 'horizontal-push', equipment: 'barbell', usesBench: true, primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 6, repHigh: 10, fatigue: 4 },
 	{ name: 'Barbell Incline Bench Press', pattern: 'horizontal-push', equipment: 'barbell', usesBench: true, primary: 'Chest', secondary: ['Front Delts', 'Triceps'], repLow: 8, repHigh: 12, fatigue: 4, notes: 'Bench set to incline.' },
 	{ name: 'Cable Chest Fly', pattern: 'horizontal-push', equipment: 'cable-high', primary: 'Chest', repLow: 12, repHigh: 20, fatigue: 1 },
+	{ name: 'Cable Low-to-High Fly', pattern: 'horizontal-push', equipment: 'cable-low', primary: 'Chest', secondary: ['Front Delts'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'From the low pulley, sweep up and across — upper-chest emphasis.' },
 	{ name: 'Dip', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 6, repHigh: 12, fatigue: 3, notes: 'Rack dip handles.' },
 	{ name: 'Push-Up', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps'], repLow: 10, repHigh: 20, fatigue: 2 },
 
@@ -68,11 +69,13 @@ export const EXERCISES: ExerciseDef[] = [
 	// Upper Back (rows)
 	{ name: 'Barbell Row', pattern: 'horizontal-pull', equipment: 'barbell', primary: 'Upper Back', secondary: ['Lats', 'Biceps', 'Rear Delts'], repLow: 8, repHigh: 12, fatigue: 4 },
 	{ name: 'Cable Seated Row', pattern: 'horizontal-pull', equipment: 'cable-low', primary: 'Upper Back', secondary: ['Lats', 'Biceps'], repLow: 10, repHigh: 15, fatigue: 2 },
+	{ name: 'Inverted Row', pattern: 'horizontal-pull', equipment: 'bodyweight', primary: 'Upper Back', secondary: ['Lats', 'Biceps'], repLow: 8, repHigh: 15, fatigue: 2, notes: 'Bar racked at waist height in the J-hooks; body straight, pull chest to bar.' },
 
 	// Lats (vertical pulls)
 	{ name: 'Cable Lat Pulldown', pattern: 'vertical-pull', equipment: 'cable-high', primary: 'Lats', secondary: ['Biceps', 'Upper Back'], repLow: 10, repHigh: 15, fatigue: 2 },
 	{ name: 'Pull-Up', pattern: 'vertical-pull', equipment: 'bodyweight', primary: 'Lats', secondary: ['Biceps', 'Upper Back'], repLow: 5, repHigh: 12, fatigue: 3, notes: 'Rack pull-up handles.' },
 	{ name: 'Chin-Up', pattern: 'vertical-pull', equipment: 'bodyweight', primary: 'Lats', secondary: ['Biceps'], repLow: 5, repHigh: 12, fatigue: 3 },
+	{ name: 'Cable Straight-Arm Pulldown', pattern: 'vertical-pull', equipment: 'cable-high', primary: 'Lats', repLow: 12, repHigh: 15, fatigue: 1, notes: 'Arms straight, sweep the bar to your thighs — lat isolation, no biceps.' },
 
 	// Lower Back
 	{ name: 'Floor Back Extension', pattern: 'hinge', equipment: 'bodyweight', primary: 'Lower Back', secondary: ['Glutes'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'Superman / prone extension.' },
@@ -85,15 +88,22 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'EZ Bar Curl', pattern: 'curl', equipment: 'ezbar', primary: 'Biceps', repLow: 8, repHigh: 12, fatigue: 2 },
 	{ name: 'Cable Biceps Curl', pattern: 'curl', equipment: 'cable-low', primary: 'Biceps', repLow: 10, repHigh: 15, fatigue: 1 },
 	{ name: 'Dumbbell Curl', pattern: 'curl', equipment: 'dumbbell', primary: 'Biceps', repLow: 12, repHigh: 15, fatigue: 1 },
+	{ name: 'Dumbbell Hammer Curl', pattern: 'curl', equipment: 'dumbbell', primary: 'Biceps', secondary: ['Forearms'], repLow: 12, repHigh: 15, fatigue: 1, notes: 'Neutral grip — hits brachialis and forearms.' },
+
+	// Forearms
+	{ name: 'EZ Bar Reverse Curl', pattern: 'curl', equipment: 'ezbar', primary: 'Forearms', secondary: ['Biceps'], repLow: 10, repHigh: 15, fatigue: 1, notes: 'Overhand grip.' },
 
 	// Triceps
 	{ name: 'Cable Triceps Pushdown', pattern: 'elbow-extension', equipment: 'cable-high', primary: 'Triceps', repLow: 10, repHigh: 15, fatigue: 1 },
 	{ name: 'Cable Overhead Triceps Extension', pattern: 'elbow-extension', equipment: 'cable-low', primary: 'Triceps', repLow: 10, repHigh: 15, fatigue: 1 },
 	{ name: 'EZ Bar Skullcrusher', pattern: 'elbow-extension', equipment: 'ezbar', usesBench: true, primary: 'Triceps', repLow: 8, repHigh: 12, fatigue: 2 },
+	{ name: 'Close-Grip Bench Press', pattern: 'elbow-extension', equipment: 'barbell', usesBench: true, primary: 'Triceps', secondary: ['Chest', 'Front Delts'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Shoulder-width grip, elbows tucked.' },
 
 	// Quads
 	{ name: 'Barbell Back Squat', pattern: 'squat', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes', 'Hamstrings'], repLow: 6, repHigh: 10, fatigue: 5, notes: 'Use rack safety arms.' },
+	{ name: 'Barbell Front Squat', pattern: 'squat', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes', 'Abs'], repLow: 6, repHigh: 10, fatigue: 4, notes: 'Clean grip or cross-arm; use rack safety arms.' },
 	{ name: 'Bulgarian Split Squat', pattern: 'lunge', equipment: 'bodyweight', usesBench: true, primary: 'Quads', secondary: ['Glutes'], repLow: 8, repHigh: 15, fatigue: 3, notes: 'Rear foot on bench; hold the 15s for load.' },
+	{ name: 'Barbell Reverse Lunge', pattern: 'lunge', equipment: 'barbell', primary: 'Quads', secondary: ['Glutes'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Step back, knee tracks over toes; reps per leg.' },
 
 	// Hamstrings
 	{ name: 'Barbell Romanian Deadlift', pattern: 'hinge', equipment: 'barbell', primary: 'Hamstrings', secondary: ['Glutes', 'Lower Back'], repLow: 8, repHigh: 12, fatigue: 4 },
@@ -111,6 +121,8 @@ export const EXERCISES: ExerciseDef[] = [
 	// Abs
 	{ name: 'Cable Crunch', pattern: 'core', equipment: 'cable-high', primary: 'Abs', repLow: 12, repHigh: 20, fatigue: 1 },
 	{ name: 'Hanging Leg Raise', pattern: 'core', equipment: 'bodyweight', primary: 'Abs', repLow: 8, repHigh: 15, fatigue: 2 },
+	{ name: 'Cable Pallof Press', pattern: 'core', equipment: 'cable-low', primary: 'Abs', repLow: 10, repHigh: 15, fatigue: 1, notes: 'Anti-rotation: press out and hold; reps per side.' },
+	{ name: 'Cable Woodchopper', pattern: 'core', equipment: 'cable-high', primary: 'Abs', repLow: 10, repHigh: 15, fatigue: 1, notes: 'High-to-low diagonal chop; reps per side.' },
 
 	// Conditioning
 	{ name: 'Trap Bar Carry', pattern: 'carry', equipment: 'trapbar', primary: 'Traps', secondary: ['Forearms', 'Abs'], repLow: 1, repHigh: 1, fatigue: 3, conditioning: true, notes: 'Time/distance based.' },
