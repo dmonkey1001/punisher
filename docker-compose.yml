@@ -10,10 +10,12 @@ name: punisher
 services:
   punisher:
     container_name: punisher
-    # Build from this repo. For Portainer "Repository" stacks this works as-is.
-    # To use a prebuilt image instead, comment out `build:` and set `image:`.
+    # Built from this repo — the image is never published to a registry.
+    # pull_policy: build makes "pull"/update operations rebuild locally instead
+    # of trying (and failing) to pull "punisher" from Docker Hub.
     build: .
     image: punisher:latest
+    pull_policy: build
     restart: unless-stopped
     ports:
       - '8585:3000'
