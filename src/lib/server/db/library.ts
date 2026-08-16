@@ -56,6 +56,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Dip', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 6, repHigh: 12, fatigue: 3, notes: 'Rack dip handles.' },
 	{ name: 'Push-Up', pattern: 'horizontal-push', equipment: 'bodyweight', primary: 'Chest', secondary: ['Triceps'], repLow: 10, repHigh: 20, fatigue: 2 },
 	{ name: 'Dumbbell Bench Press', pattern: 'horizontal-push', equipment: 'dumbbell', usesBench: true, primary: 'Chest', secondary: ['Triceps', 'Front Delts'], repLow: 8, repHigh: 12, fatigue: 3, notes: 'Load depends on your dumbbell inventory (Gear).' },
+	{ name: 'Dumbbell Fly', pattern: 'horizontal-push', equipment: 'dumbbell', usesBench: true, primary: 'Chest', repLow: 10, repHigh: 15, fatigue: 1, notes: 'Slight elbow bend, wide arc; flat or incline bench.' },
 
 	// Shoulders — Front Delts (vertical press)
 	{ name: 'Barbell Overhead Press', pattern: 'vertical-push', equipment: 'barbell', primary: 'Front Delts', secondary: ['Side Delts', 'Triceps'], repLow: 5, repHigh: 8, fatigue: 4 },
@@ -80,6 +81,7 @@ export const EXERCISES: ExerciseDef[] = [
 	{ name: 'Pull-Up', pattern: 'vertical-pull', equipment: 'bodyweight', primary: 'Lats', secondary: ['Biceps', 'Upper Back'], repLow: 5, repHigh: 12, fatigue: 3, notes: 'Rack pull-up handles.' },
 	{ name: 'Chin-Up', pattern: 'vertical-pull', equipment: 'bodyweight', primary: 'Lats', secondary: ['Biceps'], repLow: 5, repHigh: 12, fatigue: 3 },
 	{ name: 'Cable Straight-Arm Pulldown', pattern: 'vertical-pull', equipment: 'cable-high', primary: 'Lats', repLow: 12, repHigh: 15, fatigue: 1, notes: 'Arms straight, sweep the bar to your thighs — lat isolation, no biceps.' },
+	{ name: 'Dumbbell Pullover', pattern: 'vertical-pull', equipment: 'dumbbell', usesBench: true, primary: 'Lats', secondary: ['Chest'], repLow: 10, repHigh: 15, fatigue: 1, notes: 'Lying across or along the bench, one dumbbell held in both hands, lower behind your head with a slight elbow bend.' },
 
 	// Lower Back
 	{ name: 'Floor Back Extension', pattern: 'hinge', equipment: 'bodyweight', primary: 'Lower Back', secondary: ['Glutes'], repLow: 12, repHigh: 20, fatigue: 1, notes: 'Superman / prone extension.' },
